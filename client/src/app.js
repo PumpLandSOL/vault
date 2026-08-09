@@ -72,20 +72,20 @@
     const X = (p) => pad + (p - 1) / (maxP - 1) * (w - pad * 1.4);
     const Y = (r) => h - pad - r / maxR * (h - pad * 1.8);
     // grid
-    ctx.strokeStyle = 'rgba(201,168,106,.14)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(22,42,32,.10)'; ctx.lineWidth = 2;
     for (let i = 0; i <= 4; i++) { const yy = pad * 0.6 + i / 4 * (h - pad * 1.8); ctx.beginPath(); ctx.moveTo(pad, yy); ctx.lineTo(w - pad * 0.4, yy); ctx.stroke(); }
     // area + line
     ctx.beginPath(); ctx.moveTo(X(1), Y(0));
     M.curve.forEach((pt) => ctx.lineTo(X(pt.p), Y(pt.rate)));
     ctx.lineTo(X(maxP), Y(0)); ctx.closePath();
-    const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(201,168,106,.34)'); g.addColorStop(1, 'rgba(201,168,106,0)'); ctx.fillStyle = g; ctx.fill();
-    ctx.beginPath(); M.curve.forEach((pt, i) => { const x = X(pt.p), y = Y(pt.rate); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.strokeStyle = '#c9a86a'; ctx.lineWidth = 4; ctx.stroke();
+    const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(15,107,79,.22)'); g.addColorStop(1, 'rgba(15,107,79,0)'); ctx.fillStyle = g; ctx.fill();
+    ctx.beginPath(); M.curve.forEach((pt, i) => { const x = X(pt.p), y = Y(pt.rate); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.strokeStyle = '#0f6b4f'; ctx.lineWidth = 4; ctx.stroke();
     // K marker
-    ctx.strokeStyle = 'rgba(233,226,208,.35)'; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(X(M.k), pad * 0.6); ctx.lineTo(X(M.k), h - pad); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = 'rgba(22,42,32,.3)'; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(X(M.k), pad * 0.6); ctx.lineTo(X(M.k), h - pad); ctx.stroke(); ctx.setLineDash([]);
     // live premium dot
     const p = Math.min(M.premium, maxP); const dotX = X(p), dotY = Y(M.epochRate);
-    ctx.fillStyle = '#e9e2d0'; ctx.beginPath(); ctx.arc(dotX, dotY, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#c9a86a'; ctx.beginPath(); ctx.arc(dotX, dotY, 5, 0, 7); ctx.fill();
-    ctx.fillStyle = 'rgba(233,226,208,.6)'; ctx.font = '600 22px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#0f6b4f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(dotX, dotY, 9, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#0f6b4f'; ctx.beginPath(); ctx.arc(dotX, dotY, 4.5, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(22,42,32,.55)'; ctx.font = '600 22px Inter, sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('NAV (1×)', X(1), h - pad + 34); ctx.fillText('K = ' + M.k + '×', X(M.k), h - pad + 34);
   }
 

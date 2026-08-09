@@ -1,84 +1,84 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VAULT — Shareholder Services · NAV-backed reserve</title>
+<title>Vault Capital — Shareholder Services · NAV-backed reserve</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a1712;--bg2:#0d1d16;--panel:#102820;--panel2:#0e2019;--line:rgba(201,168,106,.16);
-  --ink:#eef0e9;--sub:rgba(238,240,233,.62);--mut:rgba(238,240,233,.4);
-  --gold:#c9a86a;--gold2:#e0c48a;--green:#3fae86;--red:#d4544e;
-  --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
-  --r:18px;--sh:0 24px 60px rgba(0,0,0,.4);
+  --bg:#f4f1e9;--bg2:#fbf9f4;--panel:#fffefb;--panel2:#faf7f0;--line:rgba(22,42,32,.13);
+  --ink:#15231c;--sub:rgba(21,35,28,.62);--mut:rgba(21,35,28,.42);
+  --accent:#0f6b4f;--accent2:#12805e;--gold:#b2913f;--green:#0f6b4f;--red:#c0492f;
+  --serif:'Fraunces',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:16px;--sh:0 10px 34px rgba(21,35,28,.07);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--sans);color:var(--ink);background:
-  radial-gradient(60% 60% at 82% -5%,rgba(201,168,106,.10),transparent 60%),
-  radial-gradient(50% 50% at 10% 100%,rgba(63,174,134,.08),transparent 55%),
-  linear-gradient(170deg,#0a1712,#081310)}
-body{background-color:#0a1712}
+  radial-gradient(70% 55% at 88% -8%,rgba(15,107,79,.06),transparent 60%),
+  radial-gradient(50% 50% at 5% 105%,rgba(178,145,63,.06),transparent 55%),
+  var(--bg);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-.mono{font-family:var(--mono)}.gold{color:var(--gold)}.cd{font-family:var(--mono);color:var(--gold2)}.mut{color:var(--mut)}
+.mono{font-family:var(--mono)}.gold{color:var(--accent)}.cd{font-family:var(--mono);color:var(--accent)}.mut{color:var(--mut)}
 .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
 /* header */
-header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(10,23,18,.72);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(244,241,233,.82);border-bottom:1px solid var(--line)}
 .hrow{display:flex;align-items:center;gap:18px;height:70px}
-.logo{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:.01em}
-.crest{width:34px;height:34px;border-radius:9px;background:linear-gradient(140deg,#c9a86a,#8a6d3a);display:flex;align-items:center;justify-content:center;color:#0a1712;font-family:var(--serif);font-weight:900;font-size:19px;box-shadow:0 4px 16px rgba(201,168,106,.35)}
-nav.tabs{display:flex;gap:3px;margin-left:8px}
-.tab{font-size:13.5px;font-weight:600;color:var(--sub);padding:9px 15px;border-radius:999px;cursor:pointer;transition:.16s;border:1px solid transparent}
-.tab:hover{color:var(--ink)}.tab.on{color:var(--gold2);border-color:var(--line);background:var(--panel)}
+.logo{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:-.01em}
+.crest{width:34px;height:34px;border-radius:8px;background:linear-gradient(140deg,#0f6b4f,#0b4d39);display:flex;align-items:center;justify-content:center;color:#fbf9f4;font-family:var(--serif);font-weight:600;font-size:18px}
+nav.tabs{display:flex;gap:2px;margin-left:8px}
+.tab{font-size:13.5px;font-weight:600;color:var(--sub);padding:9px 14px;border-radius:9px;cursor:pointer;transition:.16s;border:1px solid transparent}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--accent);border-color:var(--line);background:var(--panel)}
 .right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.btn{font-family:var(--sans);font-weight:700;font-size:14px;border:0;border-radius:999px;padding:11px 20px;cursor:pointer;transition:.16s}
-.btn.gold{background:linear-gradient(120deg,#c9a86a,#e0c48a);color:#0a1712}
-.btn.gold:hover{filter:brightness(1.06)}
+.btn{font-family:var(--sans);font-weight:700;font-size:14px;border:0;border-radius:10px;padding:11px 20px;cursor:pointer;transition:.16s}
+.btn.gold{background:var(--accent);color:#fbf9f4}
+.btn.gold:hover{background:var(--accent2)}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
-.btn.connected{background:var(--panel);border:1px solid var(--gold);color:var(--gold2);font-family:var(--mono);font-size:13px}
+.btn.connected{background:var(--panel);border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:13px;border-radius:10px}
 .btn.big{padding:15px 30px;font-size:15px}
 section{padding:34px 0}
 .hide{display:none}
-h1{font-family:var(--serif);font-weight:900;font-size:44px;line-height:1.06;letter-spacing:-.01em}
-.eyebrow{font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+h1{font-family:var(--serif);font-weight:600;font-size:46px;line-height:1.05;letter-spacing:-.015em}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
 .lede{color:var(--sub);font-size:16px;line-height:1.6;max-width:640px;margin-top:14px}
 /* panels */
-.panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
-.ptitle{font-family:var(--serif);font-weight:700;font-size:22px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
+.ptitle{font-family:var(--serif);font-weight:600;font-size:22px;letter-spacing:-.01em}
 .psub{color:var(--sub);font-size:14px;line-height:1.55;margin-top:6px}
 .grid{display:grid;gap:16px;margin-top:20px}
 .g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1.3fr .9fr}
 @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:20px}
 .stat .l{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
-.stat .v{font-family:var(--mono);font-weight:700;font-size:27px;margin-top:9px;color:var(--ink)}
-.stat .v.big{font-size:34px;color:var(--gold2)}
+.stat .v{font-family:var(--mono);font-weight:700;font-size:27px;margin-top:9px;color:var(--ink);letter-spacing:-.02em}
+.stat .v.big{font-size:34px;color:var(--accent)}
 .stat .s{font-size:12.5px;color:var(--sub);margin-top:5px}
 .rows{margin-top:14px}
-.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:13.5px;color:var(--sub);border-bottom:1px solid rgba(201,168,106,.08)}
+.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:13.5px;color:var(--sub);border-bottom:1px solid var(--line)}
 .row b{color:var(--ink);font-weight:700}
 /* forms */
 .field{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 18px;margin-top:16px}
 .field input{flex:1;background:none;border:0;outline:0;color:var(--ink);font-family:var(--mono);font-size:20px;padding:12px 0}
-.field .max{font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;padding:0 10px}
+.field input::placeholder{color:var(--mut)}
+.field .max{font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;padding:0 10px}
 .field .btnin{border-radius:9px;padding:12px 22px}
-.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px;gap:3px;margin-top:4px}
-.seg button{border:0;background:none;color:var(--sub);font-weight:700;font-size:13px;padding:9px 20px;border-radius:999px;cursor:pointer}
-.seg button.on{background:linear-gradient(120deg,#c9a86a,#e0c48a);color:#0a1712}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:4px;gap:3px;margin-top:4px}
+.seg button{border:0;background:none;color:var(--sub);font-weight:700;font-size:13px;padding:9px 20px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--accent);color:#fbf9f4}
 .meta{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
-.bignum{font-family:var(--mono);font-weight:700;color:var(--gold2)}
+.bignum{font-family:var(--mono);font-weight:700;color:var(--accent)}
 .yb{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--sub);padding:9px 0}
-.prog{flex:1;height:7px;background:var(--bg2);border-radius:99px;overflow:hidden}.prog i{display:block;height:100%;background:linear-gradient(90deg,#c9a86a,#e0c48a)}
+.prog{flex:1;height:7px;background:var(--bg2);border-radius:99px;overflow:hidden}.prog i{display:block;height:100%;background:var(--accent)}
 canvas#curve{width:100%;height:230px;display:block}
 .health{height:12px;border-radius:99px;background:var(--bg2);overflow:hidden;margin-top:12px}.health i{display:block;height:100%;transition:width .5s,background .5s}
-.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#0a1712;border:1px solid var(--gold);color:var(--gold2);padding:13px 22px;border-radius:12px;font-weight:600;font-size:14px;display:none;z-index:60;box-shadow:var(--sh)}
-.ca{display:none;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-family:var(--mono);font-size:12.5px;color:var(--gold2)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);border:1px solid var(--accent);color:#fbf9f4;padding:13px 22px;border-radius:12px;font-weight:600;font-size:14px;display:none;z-index:60;box-shadow:var(--sh)}
+.ca{display:none;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 16px;font-family:var(--mono);font-size:12.5px;color:var(--accent)}
 footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var(--mut);font-size:12.5px;line-height:1.7;text-align:center}
-.tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 15px}
-.tag .d{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 9px var(--gold)}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 15px}
+.tag .d{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(15,107,79,.6)}
 </style></head><body>
 
 <header><div class="wrap"><div class="hrow">
-  <div class="logo"><span class="crest">V</span>VAULT</div>
+  <div class="logo"><span class="crest">V</span>Vault Capital</div>
   <nav class="tabs">
     <div class="tab on" data-view="dash">Portfolio</div>
     <div class="tab" data-view="buy">Purchase</div>
@@ -195,7 +195,7 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
 </div></div></section>
 
 <footer><div class="wrap">
-  <div style="font-family:var(--serif);font-size:18px;color:var(--gold2);margin-bottom:8px">VAULT · Shareholder Services</div>
+  <div style="font-family:var(--serif);font-size:18px;color:var(--accent);margin-bottom:8px">Vault Capital · Shareholder Services</div>
   NAV-backed reserve protocol on Robinhood Chain · <a href="/docs" style="color:var(--gold)">Prospectus</a> · <a href="/">Home</a><br>
   $VAULT is an experiment. The fund, its NAV, dividends, bonds and credit facility are a simulation — an off-chain ledger, not audited contracts. Nothing here custodies your funds, nothing here is investment advice, and no return is promised. Not affiliated with NetNet Capital. Do not deposit money you are not prepared to lose.
 </div></footer>
