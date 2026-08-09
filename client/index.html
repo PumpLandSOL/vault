@@ -1,0 +1,205 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VAULT — Shareholder Services · NAV-backed reserve</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1712;--bg2:#0d1d16;--panel:#102820;--panel2:#0e2019;--line:rgba(201,168,106,.16);
+  --ink:#eef0e9;--sub:rgba(238,240,233,.62);--mut:rgba(238,240,233,.4);
+  --gold:#c9a86a;--gold2:#e0c48a;--green:#3fae86;--red:#d4544e;
+  --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:18px;--sh:0 24px 60px rgba(0,0,0,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--ink);background:
+  radial-gradient(60% 60% at 82% -5%,rgba(201,168,106,.10),transparent 60%),
+  radial-gradient(50% 50% at 10% 100%,rgba(63,174,134,.08),transparent 55%),
+  linear-gradient(170deg,#0a1712,#081310)}
+body{background-color:#0a1712}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}.gold{color:var(--gold)}.cd{font-family:var(--mono);color:var(--gold2)}.mut{color:var(--mut)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+/* header */
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(10,23,18,.72);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:18px;height:70px}
+.logo{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:.01em}
+.crest{width:34px;height:34px;border-radius:9px;background:linear-gradient(140deg,#c9a86a,#8a6d3a);display:flex;align-items:center;justify-content:center;color:#0a1712;font-family:var(--serif);font-weight:900;font-size:19px;box-shadow:0 4px 16px rgba(201,168,106,.35)}
+nav.tabs{display:flex;gap:3px;margin-left:8px}
+.tab{font-size:13.5px;font-weight:600;color:var(--sub);padding:9px 15px;border-radius:999px;cursor:pointer;transition:.16s;border:1px solid transparent}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--gold2);border-color:var(--line);background:var(--panel)}
+.right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn{font-family:var(--sans);font-weight:700;font-size:14px;border:0;border-radius:999px;padding:11px 20px;cursor:pointer;transition:.16s}
+.btn.gold{background:linear-gradient(120deg,#c9a86a,#e0c48a);color:#0a1712}
+.btn.gold:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.connected{background:var(--panel);border:1px solid var(--gold);color:var(--gold2);font-family:var(--mono);font-size:13px}
+.btn.big{padding:15px 30px;font-size:15px}
+section{padding:34px 0}
+.hide{display:none}
+h1{font-family:var(--serif);font-weight:900;font-size:44px;line-height:1.06;letter-spacing:-.01em}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.lede{color:var(--sub);font-size:16px;line-height:1.6;max-width:640px;margin-top:14px}
+/* panels */
+.panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
+.ptitle{font-family:var(--serif);font-weight:700;font-size:22px}
+.psub{color:var(--sub);font-size:14px;line-height:1.55;margin-top:6px}
+.grid{display:grid;gap:16px;margin-top:20px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1.3fr .9fr}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.stat .l{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.stat .v{font-family:var(--mono);font-weight:700;font-size:27px;margin-top:9px;color:var(--ink)}
+.stat .v.big{font-size:34px;color:var(--gold2)}
+.stat .s{font-size:12.5px;color:var(--sub);margin-top:5px}
+.rows{margin-top:14px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:13.5px;color:var(--sub);border-bottom:1px solid rgba(201,168,106,.08)}
+.row b{color:var(--ink);font-weight:700}
+/* forms */
+.field{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 18px;margin-top:16px}
+.field input{flex:1;background:none;border:0;outline:0;color:var(--ink);font-family:var(--mono);font-size:20px;padding:12px 0}
+.field .max{font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;padding:0 10px}
+.field .btnin{border-radius:9px;padding:12px 22px}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px;gap:3px;margin-top:4px}
+.seg button{border:0;background:none;color:var(--sub);font-weight:700;font-size:13px;padding:9px 20px;border-radius:999px;cursor:pointer}
+.seg button.on{background:linear-gradient(120deg,#c9a86a,#e0c48a);color:#0a1712}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.bignum{font-family:var(--mono);font-weight:700;color:var(--gold2)}
+.yb{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--sub);padding:9px 0}
+.prog{flex:1;height:7px;background:var(--bg2);border-radius:99px;overflow:hidden}.prog i{display:block;height:100%;background:linear-gradient(90deg,#c9a86a,#e0c48a)}
+canvas#curve{width:100%;height:230px;display:block}
+.health{height:12px;border-radius:99px;background:var(--bg2);overflow:hidden;margin-top:12px}.health i{display:block;height:100%;transition:width .5s,background .5s}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#0a1712;border:1px solid var(--gold);color:var(--gold2);padding:13px 22px;border-radius:12px;font-weight:600;font-size:14px;display:none;z-index:60;box-shadow:var(--sh)}
+.ca{display:none;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-family:var(--mono);font-size:12.5px;color:var(--gold2)}
+footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var(--mut);font-size:12.5px;line-height:1.7;text-align:center}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 15px}
+.tag .d{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 9px var(--gold)}
+</style></head><body>
+
+<header><div class="wrap"><div class="hrow">
+  <div class="logo"><span class="crest">V</span>VAULT</div>
+  <nav class="tabs">
+    <div class="tab on" data-view="dash">Portfolio</div>
+    <div class="tab" data-view="buy">Purchase</div>
+    <div class="tab" data-view="enroll">Dividend</div>
+    <div class="tab" data-view="bond">Bond Desk</div>
+    <div class="tab" data-view="loop">Loopback</div>
+    <a class="tab" href="/docs">Prospectus</a>
+  </nav>
+  <div class="right">
+    <a class="ca" id="caBar" href="#"><span class="mut">CA</span> <span id="caText"></span></a>
+    <button class="btn connected" id="connectBtn">Connect account</button>
+  </div>
+</div></div></header>
+
+<!-- PORTFOLIO / DASHBOARD -->
+<section id="dash"><div class="wrap">
+  <span class="tag"><span class="d"></span>NAV-backed · Robinhood Chain · immutable policy</span>
+  <h1 style="margin-top:16px">Net Asset Value,<br>quoted from both sides.</h1>
+  <div class="lede">Every VAULT is backed by at least 1 USDG of risk-free treasury value. Dividends scale with the premium the market pays over NAV — rich when the fund trades high, silent when it doesn't. This is the whole policy, and it cannot be changed.</div>
+
+  <div class="grid g4">
+    <div class="stat"><div class="l">Dividend Yield (APY)</div><div class="v big" id="mApy">—</div><div class="s">compounded every 8h · premium-driven</div></div>
+    <div class="stat"><div class="l">NAV (backing)</div><div class="v" id="mNav">—</div><div class="s">risk-free floor · <span id="mBacking">—</span></div></div>
+    <div class="stat"><div class="l">Market Price</div><div class="v" id="mPrice">—</div><div class="s">premium <span id="mPremium" class="gold">—</span> over NAV</div></div>
+    <div class="stat"><div class="l">Next Distribution</div><div class="v" id="mEpoch">—</div><div class="s">epoch <span id="mEpochRate">—</span></div></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px">
+    <div class="panel">
+      <div class="ptitle">The Dividend Curve</div>
+      <div class="psub">rate = R_MAX × clamp((P − 1) / (K − 1), 0, 1). Zero at NAV, saturating at the premium K. The dot is the fund right now.</div>
+      <canvas id="curve"></canvas>
+      <div class="meta"><span>R_MAX <b class="bignum" id="mEpochRate2" style="display:none"></b><b class="bignum">0.45% / epoch</b></span><span>Live index <b class="bignum" id="mIndex">—</b></span></div>
+    </div>
+    <div class="panel">
+      <div class="ptitle">Fund Facts</div>
+      <div class="rows">
+        <div class="row"><span>Treasury (risk-free)</span><b id="mTreasury">—</b></div>
+        <div class="row"><span>Total supply</span><b id="mSupply">—</b></div>
+        <div class="row"><span>Market cap</span><b id="mMcap">—</b></div>
+        <div class="row"><span>Enrolled (staked)</span><b id="mRatio">—</b></div>
+        <div class="row"><span>Buyback bid</span><b id="mBuyback">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px">
+    <div class="panel" id="lbBox" style="display:none"><div class="ptitle" style="font-size:19px">Register of Shareholders</div><div class="rows" id="lbRows"></div></div>
+    <div class="panel"><div class="ptitle" style="font-size:19px">The Ticker Tape</div><div class="psub">every action on the fund, live.</div><div class="rows" id="tapeRows"><div class="psub">Quiet on the desk.</div></div></div>
+  </div>
+</div></section>
+
+<!-- PURCHASE -->
+<section id="buy" class="hide"><div class="wrap"><div class="panel" style="max-width:560px">
+  <div class="ptitle">Direct Purchase Plan</div>
+  <div class="psub">Buy VAULT with USDG at the exchange route, less the trading tax. Proceeds and a slice of the tax accrue to the treasury.</div>
+  <div class="field"><input id="buyAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="mut mono">USDG</span><button class="btn gold btnin" id="buyBtn">Buy VAULT</button></div>
+  <div class="meta"><span id="buyRate">1 VAULT = — USDG</span><span id="buyTax">—</span></div>
+  <div class="meta" style="border:0;padding-top:4px"><span>You receive</span><b class="bignum" id="buyOut">— VAULT</b></div>
+</div></div></section>
+
+<!-- DIVIDEND -->
+<section id="enroll" class="hide"><div class="wrap"><div class="grid g2">
+  <div class="panel">
+    <div class="ptitle">Dividend Program — Enroll &amp; Earn</div>
+    <div class="psub">Enroll VAULT to receive sVAULT. Every distribution compounds into your balance automatically — nothing to claim. Redemption is 1:1 and immediate.</div>
+    <div class="seg" style="margin-top:16px"><button id="segEnroll" class="on">Enroll</button><button id="segRedeem">Redeem</button></div>
+    <div class="field"><input id="stakeAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="max" id="stakeMax">MAX</span><button class="btn gold btnin" id="stakeBtn">Enroll</button></div>
+    <div class="meta"><span>Enrolled becomes sVAULT and accrues every epoch.</span></div>
+  </div>
+  <div class="panel">
+    <div class="ptitle" style="font-size:19px">Your Statement</div>
+    <div class="rows">
+      <div class="row"><span>USDG balance</span><b id="aUsdg">—</b></div>
+      <div class="row"><span>VAULT (unenrolled)</span><b id="aVault">—</b></div>
+      <div class="row"><span>sVAULT (enrolled)</span><b id="aStaked">—</b></div>
+      <div class="row"><span>Next distribution</span><b class="gold" id="aNext">—</b></div>
+      <div class="row"><span>Loopback loan</span><b id="aLoan">—</b></div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- BOND DESK -->
+<section id="bond" class="hide"><div class="wrap"><div class="grid g2">
+  <div class="panel">
+    <div class="ptitle">Real World Bonds — Equity Bond Desk</div>
+    <div class="psub">Subscribe in USDG for VAULT notes priced at a discount to the exchange route, floored at NAV so every sale is accretive. Notes vest over 2 days.</div>
+    <div class="field"><input id="bondAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="mut mono">USDG</span><button class="btn gold btnin" id="bondBtn">Subscribe</button></div>
+    <div class="meta"><span id="bondDisc">—</span><span>Bond price <b class="bignum" id="bondPrice">—</b></span></div>
+    <div class="meta" style="border:0;padding-top:4px"><span>You receive</span><b class="bignum" id="bondOut">— VAULT</b></div>
+  </div>
+  <div class="panel"><div class="ptitle" style="font-size:19px">Your Notes</div><div id="yourBonds" style="margin-top:12px"><div class="psub">No vesting notes.</div></div></div>
+</div></div></section>
+
+<!-- LOOPBACK -->
+<section id="loop" class="hide"><div class="wrap"><div class="grid g2">
+  <div class="panel">
+    <div class="ptitle">Loopback — Lombard Credit Facility</div>
+    <div class="psub">Borrow USDG against your enrolled sVAULT, buy more VAULT, and enroll it — a leverage loop in one transaction. Borrow up to 50% of collateral value.</div>
+    <div class="field"><input id="loopAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="mut mono">USDG</span><button class="btn gold btnin" id="loopBtn">Engage</button></div>
+    <div class="meta"><span id="loopCap">— available</span><span id="loopApr">— APR</span></div>
+    <div class="health"><i id="loopHealth" style="width:100%;background:linear-gradient(90deg,#3fae86,#c9a86a)"></i></div>
+    <div class="meta" style="border:0;padding-top:8px"><span id="loopHealthL">no loan — full headroom</span><button class="btn ghost" id="repayBtn" style="padding:8px 16px;font-size:13px">Repay loan</button></div>
+  </div>
+  <div class="panel">
+    <div class="ptitle" style="font-size:19px">Effective Yield Simulator</div>
+    <div class="psub">Compounding the dividend through the loop, net of borrow cost.</div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+      <div class="stat"><div class="l">Leverage</div><div class="v" id="loopLev">—</div><div class="s">exposure per unit equity</div></div>
+      <div class="stat"><div class="l">Effective APY</div><div class="v big" id="loopEff">—</div><div class="s">net of borrow cost</div></div>
+    </div>
+    <div class="psub" style="margin-top:14px">Leverage magnifies both the dividend and the loss if the premium collapses toward NAV. Not advice; a simulation.</div>
+  </div>
+</div></div></section>
+
+<footer><div class="wrap">
+  <div style="font-family:var(--serif);font-size:18px;color:var(--gold2);margin-bottom:8px">VAULT · Shareholder Services</div>
+  NAV-backed reserve protocol on Robinhood Chain · <a href="/docs" style="color:var(--gold)">Prospectus</a> · <a href="/">Home</a><br>
+  $VAULT is an experiment. The fund, its NAV, dividends, bonds and credit facility are a simulation — an off-chain ledger, not audited contracts. Nothing here custodies your funds, nothing here is investment advice, and no return is promised. Not affiliated with NetNet Capital. Do not deposit money you are not prepared to lose.
+</div></footer>
+
+<div class="toast" id="toast"></div>
+<script src="/client/src/app.js"></script>
+</body></html>

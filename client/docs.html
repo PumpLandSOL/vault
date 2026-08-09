@@ -1,0 +1,102 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prospectus — VAULT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1712;--panel:#102820;--line:rgba(201,168,106,.16);--ink:#eef0e9;--sub:rgba(238,240,233,.66);--mut:rgba(238,240,233,.42);--gold:#c9a86a;--gold2:#e0c48a;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);color:var(--ink);background:radial-gradient(60% 50% at 82% -6%,rgba(201,168,106,.10),transparent 60%),#0a1712;line-height:1.65}
+a{color:var(--gold);text-decoration:none}.mono{font-family:var(--mono)}
+.wrap{max-width:860px;margin:0 auto;padding:0 22px}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(10,23,18,.72);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:14px;height:70px}
+.logo{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-weight:900;font-size:22px;color:var(--ink)}
+.crest{width:34px;height:34px;border-radius:9px;background:linear-gradient(140deg,#c9a86a,#8a6d3a);display:flex;align-items:center;justify-content:center;color:#0a1712;font-family:var(--serif);font-weight:900;font-size:19px}
+nav{margin-left:auto;display:flex;gap:6px}nav a{color:var(--sub);font-weight:600;font-size:14px;padding:9px 15px;border-radius:999px}
+.doc{padding:44px 0 60px}
+h1{font-family:var(--serif);font-weight:900;font-size:46px;letter-spacing:-.01em}
+.k{color:var(--sub);font-size:16px;margin-top:12px}
+h2{font-family:var(--serif);font-weight:700;font-size:28px;margin:42px 0 6px;padding-top:20px;border-top:1px solid var(--line)}
+h3{font-family:var(--serif);font-weight:700;font-size:20px;margin:26px 0 6px;color:var(--gold2)}
+p{color:var(--sub);margin-top:12px}
+.formula{font-family:var(--mono);background:#0c1c15;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:16px 18px;margin:18px 0;color:var(--gold2);font-size:14px;overflow-x:auto}
+ul{color:var(--sub);margin:12px 0 12px 22px}li{margin:7px 0}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 15px}
+table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+td b{color:var(--ink)}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:20px;color:var(--sub);font-size:14px}
+footer{border-top:1px solid var(--line);margin-top:20px;padding:30px 0;color:var(--mut);font-size:12.5px;text-align:center;line-height:1.7}
+</style></head><body>
+
+<header><div class="wrap"><div class="hrow">
+  <a class="logo" href="/"><span class="crest">V</span>VAULT</a>
+  <nav><a href="/app">App</a><a href="/">Home</a></nav>
+</div></div></header>
+
+<div class="wrap doc">
+  <span class="tag">Prospectus · not a solicitation</span>
+  <h1 style="margin-top:16px">The VAULT Prospectus</h1>
+  <div class="k">A NAV-backed reserve protocol on Robinhood Chain. This document describes the mechanism exactly as it is deployed. Where a number appears, it is a constant fixed at deployment — not an owner knob.</div>
+
+  <h2 id="mechanism">1 · The Mechanism</h2>
+  <p><b>Net Asset Value (NAV)</b> is the backing per token — risk-free treasury value divided by total supply. The protocol holds one invariant above all: <em>every VAULT is at all times backed by at least 1 USDG of risk-free value.</em> Treasury-held VAULT is valued at that 1 USDG floor, never at market price.</p>
+  <p>The <b>market price</b> is a time-weighted average (TWAP) from the VAULT/USDG pair. The <b>premium</b> the market pays over backing is simply:</p>
+  <div class="formula">P = marketPrice / NAV</div>
+  <p>The oracle is fail-closed: readings require a valid observation window, and outside it every dependent operation reverts. The fund will not act on a stale price.</p>
+
+  <h2 id="dividend">2 · The Dividend Policy</h2>
+  <p>Dividends are emissions to enrolled shareholders (sVAULT), paid every epoch. The rate is a pure function of the premium — and it is immutable:</p>
+  <div class="formula">rate = R_MAX × clamp((P − 1) / (K − 1), 0, 1)</div>
+  <table>
+    <tr><th>Constant</th><th>Value</th><th>Meaning</th></tr>
+    <tr><td>R_MAX</td><td><b>0.45%</b> / epoch</td><td>maximum dividend, per 8-hour epoch</td></tr>
+    <tr><td>K</td><td><b>1.75×</b></td><td>premium at which the rate saturates</td></tr>
+    <tr><td>Epoch</td><td><b>8 hours</b></td><td>three distributions per day</td></tr>
+  </table>
+  <p>In words: at or below NAV, the dividend is <b>zero</b>. At a 1.75× premium or higher, it pays the full 0.45% per epoch. Between, it interpolates linearly. The fund pays out precisely the confidence the market extends to it — no more, no less.</p>
+  <div class="note">There are no owner functions in the emissions path. No admin can alter the epoch length, R_MAX, K, the TWAP source, the fee split, or the bond rule. <b>The only way to change the dividend policy is to deploy a different fund.</b></div>
+
+  <h2 id="reserve">3 · The Reserve Cap</h2>
+  <p>The distributor can never mint past the treasury's risk-free value. If a distribution would push <span class="mono">supply × 1 USDG</span> above reserves, it clamps to the cap. The backing invariant is enforced automatically, every epoch — the printing press is wired to the vault door.</p>
+
+  <h2 id="purchase">4 · Direct Purchase &amp; Trading Tax</h2>
+  <p>The Direct Purchase Plan buys VAULT at the exchange route, less a <b>5% trading tax</b>. The tax splits to the buyback program, the treasury, and the team; proceeds accrue to reserves. The protocol always quotes around NAV from both sides — a standing buyback bid at <b>NAV − 1.5%</b> below, and bonds at or above NAV above.</p>
+
+  <h2 id="bonds">5 · The Bond Desk</h2>
+  <p>Bonds sell VAULT for USDG at a discount to market, priced with a hard NAV floor:</p>
+  <div class="formula">bondPrice = max(TWAP × (1 − discount), NAV)</div>
+  <p>Because the floor is NAV, a bond can never sell VAULT below its existing backing — every subscription is <b>strictly accretive</b>. Discount is 6.5%; notes vest over 2 days.</p>
+
+  <h2 id="loopback">6 · Loopback — the Lombard Credit Facility</h2>
+  <p>Loopback lets an enrolled shareholder borrow USDG against their sVAULT, buy more VAULT, and enroll it — a leverage loop in one transaction.</p>
+  <ul>
+    <li><b>Collateral:</b> your enrolled sVAULT, valued at NAV.</li>
+    <li><b>Max LTV:</b> 50% of collateral value.</li>
+    <li><b>Borrow cost:</b> 12% APR on outstanding USDG.</li>
+    <li><b>Effective yield:</b> the dividend, magnified by leverage, net of borrow cost — shown live in the simulator.</li>
+  </ul>
+  <p>Leverage cuts both ways. If the premium collapses toward NAV the dividend falls to zero while the loan does not; the health meter shows your remaining headroom. This is the sharpest instrument in the fund. Treat it like one.</p>
+
+  <h2 id="token">7 · The $VAULT Token</h2>
+  <p>VAULT is the fund's share. sVAULT is the enrolled, dividend-bearing form; redemption between them is 1:1 and immediate. The contract address appears in the app the moment the fund is live — trust only the address shown at the app.</p>
+
+  <h2 id="what">8 · What is real, and what is simulated</h2>
+  <p>This build runs the entire mechanism — NAV, premium, dividends, bonds, buyback, and Loopback — as an <b>off-chain ledger</b>. It is faithful to the design but it does not custody funds and is not audited. The math is real; the settlement is a simulation. Nothing here is investment advice, and no return is promised or possible to promise.</p>
+
+  <h2 id="risk">9 · Risk Factors</h2>
+  <ul>
+    <li>The premium can fall to 1×, at which point dividends are zero — indefinitely.</li>
+    <li>Leverage via Loopback amplifies losses and can wipe your equity if the premium compresses.</li>
+    <li>This is an experiment on a new chain. Treat it as one.</li>
+    <li>Not affiliated with NetNet Capital or any regulated fund. "Fund", "shares", "dividend", and "prospectus" are thematic, not legal, terms.</li>
+  </ul>
+
+  <div class="note" style="margin-top:30px">Enhancements over the reference design: a <b>live NAV / premium / dividend-curve dashboard</b> that renders the emissions policy as you watch it, and a <b>Loopback simulator</b> with an effective-APY readout and a health/headroom meter.</div>
+</div>
+
+<footer><div class="wrap">
+  $VAULT is an experiment — an off-chain simulation, not audited contracts, no custody, no advice, no promised return. Not affiliated with NetNet Capital. Do not deposit money you are not prepared to lose.
+</div></footer>
+</body></html>

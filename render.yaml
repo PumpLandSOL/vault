@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: vault
+    runtime: node
+    plan: free
+    buildCommand: ""
+    startCommand: node server/index.js
+    autoDeploy: true
+    envVars:
+      # VAULT_MINT stays unset until $VAULT launches — set it in the Render dashboard
+      # to light up the CA bar in the app.
+      - key: EPOCH_SEC
+        value: "28800"

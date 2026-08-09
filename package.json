@@ -1,0 +1,9 @@
+{
+  "name": "vault",
+  "version": "1.0.0",
+  "description": "VAULT ($VAULT) — a NAV-backed reserve protocol on Robinhood Chain. Recreation + enhancement of NetNet Capital: NAV floor, premium-driven dividends, bond desk, and the Loopback (Lombard) leverage facility.",
+  "main": "server/index.js",
+  "scripts": { "start": "node server/index.js" },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}
