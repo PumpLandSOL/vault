@@ -5,38 +5,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#060606;--bg2:#0c0c0c;--panel:#0b0b0b;--panel2:#101010;--line:rgba(255,255,255,.15);--line2:rgba(255,255,255,.28);
-  --ink:#ece9e0;--sub:rgba(236,233,224,.56);--mut:rgba(236,233,224,.34);
-  --accent:#ffffff;--red:#ff5b4a;
+  --bg:#f3f0e7;--bg2:#eae6da;--panel:#faf8f1;--panel2:#f0ece1;--line:rgba(20,37,28,.14);--line2:rgba(20,37,28,.3);
+  --ink:#14251c;--sub:rgba(20,37,28,.6);--mut:rgba(20,37,28,.36);
+  --accent:#0f6b4f;--accent2:#12805e;--cream:#f3f0e7;--creamsub:rgba(243,240,231,.62);--red:#c0492f;
   --disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
-  --sh:0 0 0 1px rgba(255,255,255,0);
+  --sh:0 0 0 1px rgba(0,0,0,0);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative}
-/* cryptic overlays: scanlines + faint grid + vignette */
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
-  background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px);mix-blend-mode:overlay;opacity:.5}
+/* faint grid texture */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
-  background:linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,.04) 1px,transparent 1px);
-  background-size:56px 56px;-webkit-mask:radial-gradient(120% 90% at 50% 0%,#000,transparent 78%);mask:radial-gradient(120% 90% at 50% 0%,#000,transparent 78%);opacity:.5}
+  background:linear-gradient(90deg,rgba(20,37,28,.03) 1px,transparent 1px),linear-gradient(0deg,rgba(20,37,28,.03) 1px,transparent 1px);
+  background-size:58px 58px;-webkit-mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 82%);mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 82%);opacity:.6}
 a{color:inherit;text-decoration:none}
-.mono{font-family:var(--mono)}.gold{color:var(--ink)}.cd{font-family:var(--mono);color:var(--ink)}.mut{color:var(--mut)}
+.mono{font-family:var(--mono)}.gold{color:var(--accent)}.cd{font-family:var(--mono);color:var(--accent)}.mut{color:var(--mut)}
 .wrap{max-width:1160px;margin:0 auto;padding:0 22px;position:relative;z-index:3}
 /* header */
-header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);background:rgba(6,6,6,.86);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);background:rgba(243,240,231,.86);border-bottom:1px solid var(--line)}
 .hrow{display:flex;align-items:center;gap:18px;height:66px}
 .logo{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.18em;text-transform:uppercase}
-.crest{width:30px;height:30px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:var(--mono);font-weight:800;font-size:15px;background:#000;box-shadow:inset 0 0 0 3px #000,inset 0 0 0 4px rgba(255,255,255,.12)}
+.crest{width:30px;height:30px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;color:var(--cream);font-family:var(--mono);font-weight:800;font-size:15px;background:var(--ink)}
 nav.tabs{display:flex;gap:0;margin-left:12px}
 .tab{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sub);padding:8px 14px;cursor:pointer;transition:.12s;border:1px solid transparent}
-.tab:hover{color:var(--ink)}.tab.on{color:#000;background:var(--ink);border-color:var(--ink)}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--cream);background:var(--ink);border-color:var(--ink)}
 .right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .btn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line2);border-radius:0;padding:12px 20px;cursor:pointer;transition:.14s;background:transparent;color:var(--ink)}
-.btn.gold{background:var(--ink);color:#000;border-color:var(--ink)}
-.btn.gold:hover{background:#fff}
+.btn.gold{background:var(--accent);color:var(--cream);border-color:var(--accent)}
+.btn.gold:hover{background:var(--accent2)}
 .btn.ghost{background:transparent;color:var(--ink)}.btn.ghost:hover{border-color:var(--ink)}
-.btn.connected{background:#000;border:1px solid var(--line2);color:var(--ink);font-size:11px}
+.btn.connected{background:var(--panel);border:1px solid var(--accent);color:var(--accent);font-size:11px}
 .btn.big{padding:16px 30px;font-size:12.5px}
 section{padding:36px 0}
 .hide{display:none}
@@ -56,31 +54,31 @@ h1{font-family:var(--disp);font-weight:700;font-size:52px;line-height:.98;letter
 .g3 .stat,.g2 .stat{border:1px solid var(--line)}
 .stat .l{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
 .stat .v{font-family:var(--mono);font-weight:700;font-size:28px;margin-top:10px;color:var(--ink);letter-spacing:-.02em}
-.stat .v.big{font-size:36px}
+.stat .v.big{font-size:36px;color:var(--accent)}
 .stat .s{font-size:11.5px;color:var(--sub);margin-top:6px;letter-spacing:.02em}
 .rows{margin-top:14px}
 .row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;font-size:12.5px;color:var(--sub);border-bottom:1px solid var(--line)}
 .row b{color:var(--ink);font-weight:700}
 /* forms */
-.field{display:flex;align-items:center;gap:10px;background:#000;border:1px solid var(--line2);border-radius:0;padding:6px 6px 6px 16px;margin-top:16px}
+.field{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line2);border-radius:0;padding:6px 6px 6px 16px;margin-top:16px}
 .field input{flex:1;background:none;border:0;outline:0;color:var(--ink);font-family:var(--mono);font-size:19px;padding:12px 0}
 .field input::placeholder{color:var(--mut)}
-.field .max{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink);cursor:pointer;padding:0 10px}
+.field .max{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--accent);cursor:pointer;padding:0 10px}
 .field .btnin{padding:13px 22px}
-.seg{display:inline-flex;background:#000;border:1px solid var(--line2);border-radius:0;padding:3px;gap:3px;margin-top:4px}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line2);border-radius:0;padding:3px;gap:3px;margin-top:4px}
 .seg button{border:0;background:none;color:var(--sub);font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:9px 20px;cursor:pointer}
-.seg button.on{background:var(--ink);color:#000}
+.seg button.on{background:var(--accent);color:var(--cream)}
 .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
-.bignum{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.bignum{font-family:var(--mono);font-weight:700;color:var(--accent)}
 .yb{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--sub);padding:9px 0}
-.prog{flex:1;height:6px;background:#000;border:1px solid var(--line);border-radius:0;overflow:hidden}.prog i{display:block;height:100%;background:var(--ink)}
+.prog{flex:1;height:6px;background:var(--bg2);border:1px solid var(--line);border-radius:0;overflow:hidden}.prog i{display:block;height:100%;background:var(--accent)}
 canvas#curve{width:100%;height:230px;display:block}
-.health{height:12px;border:1px solid var(--line);background:#000;overflow:hidden;margin-top:12px}.health i{display:block;height:100%;transition:width .5s,background .5s;background:var(--ink)}
-.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#000;border:1px solid var(--ink);color:var(--ink);padding:13px 22px;border-radius:0;font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.04em;display:none;z-index:60}
-.ca{display:none;align-items:center;gap:10px;background:#000;border:1px solid var(--line);border-radius:0;padding:9px 14px;font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+.health{height:12px;border:1px solid var(--line);background:var(--bg2);overflow:hidden;margin-top:12px}.health i{display:block;height:100%;transition:width .5s,background .5s;background:var(--accent)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);border:1px solid var(--ink);color:var(--cream);padding:13px 22px;border-radius:0;font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.04em;display:none;z-index:60}
+.ca{display:none;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:0;padding:9px 14px;font-family:var(--mono);font-size:11.5px;color:var(--accent)}
 footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var(--mut);font-size:11.5px;line-height:1.8;text-align:center;letter-spacing:.02em}
-.tag{display:inline-flex;align-items:center;gap:9px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:#000;border:1px solid var(--line2);border-radius:0;padding:8px 15px}
-.tag .d{width:6px;height:6px;border-radius:0;background:var(--ink);animation:bl 1.4s steps(1) infinite}
+.tag{display:inline-flex;align-items:center;gap:9px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:1px solid var(--line2);border-radius:0;padding:8px 15px}
+.tag .d{width:6px;height:6px;border-radius:0;background:var(--accent);animation:bl 1.4s steps(1) infinite}
 @keyframes bl{50%{opacity:.15}}
 </style></head><body>
 
@@ -197,14 +195,14 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
       <div class="stat"><div class="l">Leverage</div><div class="v" id="loopLev">—</div><div class="s">exposure per unit equity</div></div>
       <div class="stat"><div class="l">Effective APY</div><div class="v big" id="loopEff">—</div><div class="s">net of borrow cost</div></div>
     </div>
-    <div class="psub" style="margin-top:14px">Leverage magnifies both the dividend and the loss if the premium collapses toward NAV. Not advice; a simulation.</div>
+    <div class="psub" style="margin-top:14px">Leverage magnifies both the dividend and the loss if the premium collapses toward NAV. Manage your headroom. Not financial advice.</div>
   </div>
 </div></div></section>
 
 <footer><div class="wrap">
   <div style="font-family:var(--serif);font-size:18px;color:var(--accent);margin-bottom:8px">Vault Capital · Shareholder Services</div>
   NAV-backed reserve protocol on Robinhood Chain · <a href="/docs" style="color:var(--gold)">Prospectus</a> · <a href="/">Home</a><br>
-  $VAULT is an experiment. The fund, its NAV, dividends, bonds and credit facility are a simulation — an off-chain ledger, not audited contracts. Nothing here custodies your funds, nothing here is investment advice, and no return is promised. Not affiliated with NetNet Capital. Do not deposit money you are not prepared to lose.
+  Not affiliated with NetNet Capital. "Fund", "shares", "dividend", and "prospectus" are thematic terms. Nothing here is financial advice — do your own research.
 </div></footer>
 
 <div class="toast" id="toast"></div>

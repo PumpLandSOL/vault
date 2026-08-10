@@ -1,25 +1,29 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VAULT CAPITAL // NAV-BACKED RESERVE · ROBINHOOD CHAIN</title>
+<title>Vault Capital // NAV-backed reserve · Robinhood Chain</title>
 <meta name="description" content="Vault Capital: a NAV-backed reserve protocol on Robinhood Chain. Every VAULT is backed by at least 1 USDG. Dividends scale with the premium the market pays.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#060606;--ink:#ece9e0;--sub:rgba(236,233,224,.55);--mut:rgba(236,233,224,.32);--line:rgba(255,255,255,.14);--line2:rgba(255,255,255,.3);--disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+:root{
+  --bg:#f3f0e7;--ink:#14251c;--sub:rgba(20,37,28,.6);--mut:rgba(20,37,28,.36);
+  --line:rgba(20,37,28,.14);--line2:rgba(20,37,28,.3);
+  --accent:#0f6b4f;--accent2:#12805e;--cream:#f3f0e7;--creamsub:rgba(243,240,231,.62);
+  --disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:40;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);mix-blend-mode:overlay;opacity:.5}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background:linear-gradient(90deg,rgba(20,37,28,.03) 1px,transparent 1px),linear-gradient(0deg,rgba(20,37,28,.03) 1px,transparent 1px);background-size:58px 58px;-webkit-mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 80%);mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 80%);opacity:.7}
 a{color:inherit;text-decoration:none}
 /* ── top ticker tape ── */
-.tape{position:relative;z-index:10;border-bottom:1px solid var(--line);background:#000;overflow:hidden;white-space:nowrap;height:38px;display:flex;align-items:center}
-.tape .track{display:inline-flex;gap:44px;padding-left:100%;animation:scroll 26s linear infinite;font-size:12px;letter-spacing:.08em;color:var(--sub)}
-.tape .track b{color:var(--ink)}.tape .track span{color:var(--mut)}
+.tape{position:relative;z-index:10;border-bottom:1px solid var(--ink);background:var(--ink);color:var(--cream);overflow:hidden;white-space:nowrap;height:38px;display:flex;align-items:center}
+.tape .track{display:inline-flex;gap:44px;padding-left:100%;animation:scroll 26s linear infinite;font-size:12px;letter-spacing:.08em;color:var(--creamsub)}
+.tape .track b{color:var(--cream)}
 @keyframes scroll{to{transform:translateX(-100%)}}
 /* ── fixed side rail ── */
-.rail{position:fixed;left:0;top:0;bottom:0;width:52px;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 0;z-index:30;background:rgba(6,6,6,.6)}
+.rail{position:fixed;left:0;top:0;bottom:0;width:52px;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 0;z-index:30;background:rgba(243,240,231,.7)}
 .rail .rec{display:flex;align-items:center;gap:7px;writing-mode:vertical-rl;font-size:10px;letter-spacing:.3em;color:var(--sub);text-transform:uppercase}
-.rail .dot{width:7px;height:7px;background:#ff3b30;border-radius:50%;animation:bl 1.3s steps(1) infinite}
+.rail .dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:bl 1.3s steps(1) infinite}
 @keyframes bl{50%{opacity:.2}}
 .rail .vt{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;letter-spacing:.34em;color:var(--mut);text-transform:uppercase}
 .rail .id{writing-mode:vertical-rl;font-size:10px;letter-spacing:.2em;color:var(--mut)}
@@ -28,11 +32,11 @@ a{color:inherit;text-decoration:none}
 /* ── top bar ── */
 .bar{display:flex;align-items:center;height:64px;padding:0 30px;border-bottom:1px solid var(--line);position:relative;z-index:10}
 .brand{display:flex;align-items:center;gap:12px;font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.2em;text-transform:uppercase}
-.crest{width:30px;height:30px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;background:#000}
+.crest{width:30px;height:30px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;background:var(--ink);color:var(--cream)}
 .bar nav{margin-left:auto;display:flex;align-items:center;gap:4px}
 .bar nav a{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);padding:9px 14px}.bar nav a:hover{color:var(--ink)}
-.enter{border:1px solid var(--line2);background:var(--ink);color:#000!important;padding:11px 20px!important;font-weight:700}
-.enter:hover{background:#fff}
+.enter{border:1px solid var(--accent);background:var(--accent);color:var(--cream)!important;padding:11px 20px!important;font-weight:700}
+.enter:hover{background:var(--accent2)}
 .wrap{padding:0 30px;position:relative;z-index:5}
 /* ── HERO: asymmetric split ── */
 .hero{display:grid;grid-template-columns:1.35fr .95fr;gap:0;border-bottom:1px solid var(--line)}
@@ -40,50 +44,68 @@ a{color:inherit;text-decoration:none}
 .hero .L{padding:64px 40px 54px 30px;border-right:1px solid var(--line)}
 @media(max-width:900px){.hero .L{border-right:0;border-bottom:1px solid var(--line);padding:48px 24px}}
 .stamp{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);padding:8px 14px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink)}
-.stamp .b{width:6px;height:6px;background:var(--ink);animation:bl 1.4s steps(1) infinite}
+.stamp .b{width:6px;height:6px;background:var(--accent);animation:bl 1.4s steps(1) infinite}
 .giant{font-family:var(--disp);font-weight:700;text-transform:uppercase;line-height:.86;letter-spacing:-.03em;margin-top:30px;font-size:clamp(64px,11vw,152px)}
 .giant .o{color:var(--bg);-webkit-text-stroke:1.6px var(--ink)}
 .tagline{margin-top:26px;font-size:14px;line-height:1.75;color:var(--sub);max-width:520px}
 .tagline b{color:var(--ink);font-weight:600}
 .heroCta{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
 .btn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line2);padding:15px 26px;cursor:pointer;background:transparent;color:var(--ink);display:inline-block}
-.btn.solid{background:var(--ink);color:#000;border-color:var(--ink)}.btn.solid:hover{background:#fff}.btn:hover{border-color:var(--ink)}
-/* readout panel (right) */
-.hero .R{padding:40px 30px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
-.rd{border:1px solid var(--line);background:#000}
-.rd .hd{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.btn.solid{background:var(--accent);color:var(--cream);border-color:var(--accent)}.btn.solid:hover{background:var(--accent2)}.btn:hover{border-color:var(--ink)}
+/* readout panel (right) — dark insert */
+.hero .R{padding:40px 30px;display:flex;flex-direction:column;justify-content:center}
+.rd{border:1px solid var(--ink);background:var(--ink);color:var(--cream)}
+.rd .hd{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(243,240,231,.16);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--creamsub)}
 .rd .big{padding:26px 18px 8px;font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:1}
-.rd .cap{padding:0 18px 22px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sub)}
-.rd .split{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
-.rd .cell{padding:16px 18px}.rd .cell+.cell{border-left:1px solid var(--line)}
-.rd .cell .l{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.rd .cap{padding:0 18px 22px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--creamsub)}
+.rd .split{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(243,240,231,.16)}
+.rd .cell{padding:16px 18px}.rd .cell+.cell{border-left:1px solid rgba(243,240,231,.16)}
+.rd .cell .l{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--creamsub)}
 .rd .cell .v{font-size:24px;font-weight:700;margin-top:7px;letter-spacing:-.02em}
-.cursor{display:inline-block;width:11px;height:1.05em;background:var(--ink);vertical-align:-2px;margin-left:2px;animation:bl 1s steps(1) infinite}
+.cursor{display:inline-block;width:11px;height:1.05em;background:var(--cream);vertical-align:-2px;margin-left:2px;animation:bl 1s steps(1) infinite}
 /* ── THE NUMBER band ── */
 .number{border-bottom:1px solid var(--line);padding:54px 30px;display:flex;align-items:flex-end;gap:34px;flex-wrap:wrap}
-.number .huge{font-family:var(--disp);font-weight:700;font-size:clamp(90px,18vw,240px);line-height:.8;letter-spacing:-.04em}
+.number .huge{font-family:var(--disp);font-weight:700;font-size:clamp(90px,18vw,240px);line-height:.8;letter-spacing:-.04em;color:var(--ink)}
 .number .side{padding-bottom:14px}
-.number .side .l{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut)}
+.number .side .l{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
 .number .side p{margin-top:12px;max-width:340px;font-size:13px;line-height:1.7;color:var(--sub)}
 /* ── MANIFEST rows ── */
 .mani{border-bottom:1px solid var(--line)}
 .mrow{display:grid;grid-template-columns:120px 1fr 2fr;gap:20px;align-items:baseline;padding:30px;border-top:1px solid var(--line);transition:.15s}
 .mrow:first-child{border-top:0}
-.mrow:hover{background:var(--ink);color:#000}
-.mrow:hover .mn,.mrow:hover .md{color:#000}
-.mrow .mn{font-size:13px;letter-spacing:.14em;color:var(--mut)}
+.mrow:hover{background:var(--ink);color:var(--cream)}
+.mrow:hover .mn,.mrow:hover .md{color:var(--creamsub)}
+.mrow .mn{font-size:13px;letter-spacing:.14em;color:var(--accent)}
 .mrow h3{font-family:var(--disp);font-weight:600;font-size:26px;text-transform:uppercase;letter-spacing:-.01em}
 .mrow .md{font-size:13px;line-height:1.65;color:var(--sub)}
 @media(max-width:720px){.mrow{grid-template-columns:1fr;gap:8px}}
 .sechead{padding:44px 30px 4px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut)}
+/* ── FAQ ── */
+.faq{border-bottom:1px solid var(--line)}
+.fitem{border-top:1px solid var(--line);padding:0 30px}
+.fitem:first-child{border-top:0}
+.fq{display:flex;align-items:center;gap:18px;padding:26px 0;cursor:pointer;list-style:none}
+.fq::-webkit-details-marker{display:none}
+.fq .qn{font-size:12px;letter-spacing:.12em;color:var(--accent);min-width:34px}
+.fq .qt{font-family:var(--disp);font-weight:600;font-size:19px;letter-spacing:-.01em}
+.fq .pm{margin-left:auto;font-size:20px;color:var(--mut);transition:.2s}
+details[open] .fq .pm{transform:rotate(45deg);color:var(--ink)}
+.fa{padding:0 0 28px 52px;max-width:760px;font-size:13.5px;line-height:1.8;color:var(--sub)}
+.fa b{color:var(--ink);font-weight:600}
+@media(max-width:720px){.fa{padding-left:0}}
 /* ── redacted excerpt ── */
 .excerpt{padding:54px 30px 60px}
-.exbox{border:1px solid var(--line2);background:#000;padding:40px}
-.exbox .meta{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px}
-.exbox p{font-size:16px;line-height:1.9;color:var(--ink)}
-.rdc{background:var(--ink);color:transparent;padding:0 4px;border-radius:0;user-select:none}
-.exbox .sig{margin-top:26px;font-size:12px;letter-spacing:.1em;color:var(--sub)}
-footer{border-top:1px solid var(--line);padding:32px 30px;color:var(--mut);font-size:11px;line-height:1.85;letter-spacing:.02em}
+.exbox{border:1px solid var(--ink);background:var(--ink);color:var(--cream);padding:40px}
+.exbox .meta{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--creamsub);border-bottom:1px solid rgba(243,240,231,.16);padding-bottom:16px;margin-bottom:24px}
+.exbox p{font-size:16px;line-height:1.9;color:var(--cream)}
+.rdc{background:var(--cream);color:transparent;padding:0 4px;user-select:none}
+.exbox .sig{margin-top:26px;font-size:12px;letter-spacing:.1em;color:var(--creamsub)}
+/* ── closing CTA ── */
+.close{padding:64px 30px;text-align:center;border-bottom:1px solid var(--line)}
+.close .big{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,68px);text-transform:uppercase;letter-spacing:-.02em;line-height:.98}
+.close p{color:var(--sub);font-size:13px;margin-top:18px}
+.close .heroCta{justify-content:center;margin-top:28px}
+footer{padding:32px 30px;color:var(--mut);font-size:11px;line-height:1.85;letter-spacing:.02em}
 footer a{color:var(--ink)}
 </style></head><body>
 
@@ -102,7 +124,7 @@ footer a{color:var(--ink)}
   <div class="bar">
     <div class="brand"><span class="crest">V</span>Vault&nbsp;Capital</div>
     <nav>
-      <a href="/app">App</a><a href="/docs">Prospectus</a>
+      <a href="/app">App</a><a href="/docs">Prospectus</a><a href="#faq">FAQ</a>
       <a class="btn enter" href="/app">Enter Shareholder Services →</a>
     </nav>
   </div>
@@ -110,7 +132,7 @@ footer a{color:var(--ink)}
   <!-- HERO -->
   <div class="hero">
     <div class="L">
-      <span class="stamp"><span class="b"></span>Classified · Immutable Policy</span>
+      <span class="stamp"><span class="b"></span>Reserve Protocol · Immutable Policy</span>
       <div class="giant">Vault<br>Cap<span class="o">ital</span></div>
       <div class="tagline">A reserve currency in the shape of a capital-management fund. Every VAULT is backed by at least <b>1 USDG</b> of risk-free value — a hard floor you redeem against, <b>1:1</b>, at any hour. Above it, the press runs, scaled to the premium the market will pay.</div>
       <div class="heroCta"><a class="btn solid" href="/app">Enter Shareholder Services →</a><a class="btn" href="/docs">Read the Prospectus</a></div>
@@ -124,7 +146,7 @@ footer a{color:var(--ink)}
           <div class="cell"><div class="l">Premium</div><div class="v" id="rdPrem">—</div></div>
           <div class="cell"><div class="l">Dividend APY</div><div class="v" id="rdApy">—</div></div>
         </div>
-        <div class="split" style="border-top:1px solid var(--line)">
+        <div class="split" style="border-top:1px solid rgba(243,240,231,.16)">
           <div class="cell"><div class="l">Treasury</div><div class="v" id="rdTre">—</div></div>
           <div class="cell"><div class="l">Supply</div><div class="v" id="rdSup">—</div></div>
         </div>
@@ -150,6 +172,27 @@ footer a{color:var(--ink)}
     <div class="mrow"><div class="mn">04 · BACKING</div><h3>The Reserve Cap</h3><div class="md">The distributor can never mint past the treasury's risk-free value. The printing press is wired to the vault door — enforced every epoch, by the contract, not an admin.</div></div>
   </div>
 
+  <!-- FAQ -->
+  <div class="sechead" id="faq">// Frequently Asked</div>
+  <div class="faq">
+    <details class="fitem"><summary class="fq"><span class="qn">Q1</span><span class="qt">What is NAV?</span><span class="pm">+</span></summary>
+      <div class="fa">Net Asset Value — the risk-free treasury value divided by total supply, expressed per token. It is the <b>backing floor</b>: every VAULT is guaranteed to be worth at least 1 USDG of reserves, and NAV only rises as bonds add to the treasury. It is both the value you redeem against and the reference point the entire dividend policy is measured from.</div></details>
+    <details class="fitem"><summary class="fq"><span class="qn">Q2</span><span class="qt">What is the premium, and why does it matter?</span><span class="pm">+</span></summary>
+      <div class="fa">The premium <b>P = market price / NAV</b> — how much more the market pays than the backing. It is the <b>only input to the dividend</b>. At or below NAV (P ≤ 1), the dividend is zero. At a 1.75× premium or higher, it pays the full rate. The fund emits exactly the confidence the market extends to it.</div></details>
+    <details class="fitem"><summary class="fq"><span class="qn">Q3</span><span class="qt">How are dividends paid?</span><span class="pm">+</span></summary>
+      <div class="fa">Enroll VAULT to receive <b>sVAULT</b>. Every 8-hour epoch, the distribution compounds directly into your balance — nothing to claim, ever. The rate follows <b>R_MAX × clamp((P − 1)/(K − 1), 0, 1)</b>, with R_MAX 0.45% per epoch and K = 1.75. Three distributions a day.</div></details>
+    <details class="fitem"><summary class="fq"><span class="qn">Q4</span><span class="qt">Can I redeem at any time?</span><span class="pm">+</span></summary>
+      <div class="fa">Yes. Redemption between sVAULT and VAULT is <b>1:1 and immediate</b> at Shareholder Services — no lockups, no queues, no notice period. The floor is always there.</div></details>
+    <details class="fitem"><summary class="fq"><span class="qn">Q5</span><span class="qt">How does the Bond Desk work?</span><span class="pm">+</span></summary>
+      <div class="fa">Subscribe in USDG for VAULT notes priced at a discount to market, with a hard floor at NAV — <b>bondPrice = max(market × (1 − discount), NAV)</b>. Because the floor is NAV, a bond can never sell VAULT below its existing backing, so every subscription is <b>accretive</b>: the floor only rises. Notes vest over two days.</div></details>
+    <details class="fitem"><summary class="fq"><span class="qn">Q6</span><span class="qt">What is Loopback?</span><span class="pm">+</span></summary>
+      <div class="fa">The Lombard credit facility. Borrow USDG against your enrolled sVAULT — up to <b>50% of collateral value</b> — buy more VAULT, and enroll it, all in one transaction. The result is leveraged exposure to the dividend, shown live in the simulator with an effective-APY readout and a health/headroom meter. Leverage magnifies gains and losses alike.</div></details>
+    <details class="fitem"><summary class="fq"><span class="qn">Q7</span><span class="qt">What actually backs the token?</span><span class="pm">+</span></summary>
+      <div class="fa">USDG reserves held in the treasury. The <b>reserve cap</b> means the distributor can never mint past the treasury's risk-free value — the emissions are wired to the backing, enforced every epoch by the contract, not by any administrator. No admin can alter the epoch, R_MAX, K, the source pair, or the fee split.</div></details>
+    <details class="fitem"><summary class="fq"><span class="qn">Q8</span><span class="qt">Which chain, and how do I get USDG?</span><span class="pm">+</span></summary>
+      <div class="fa">Vault Capital lives on <b>Robinhood Chain</b>. Acquire USDG on Robinhood Chain through the Robinhood app or Wallet, or by bridging, then connect an EVM wallet at Shareholder Services to purchase, enroll, bond, and loop.</div></details>
+  </div>
+
   <!-- REDACTED EXCERPT -->
   <div class="excerpt">
     <div class="sechead" style="padding:0 0 18px">// Prospectus — Excerpt §2</div>
@@ -160,9 +203,16 @@ footer a{color:var(--ink)}
     </div>
   </div>
 
+  <!-- CLOSING CTA -->
+  <div class="close">
+    <div class="big">A floor beneath you.<br>A press above.</div>
+    <p>Purchase · Enroll · Bond · Loop — at Shareholder Services.</p>
+    <div class="heroCta"><a class="btn solid" href="/app">Enter Shareholder Services →</a><a class="btn" href="/docs">Read the Prospectus</a></div>
+  </div>
+
   <footer>
     VAULT CAPITAL // <a href="/app">App</a> · <a href="/docs">Prospectus</a> · Robinhood Chain<br>
-    $VAULT is an experiment — an off-chain simulation, not audited contracts, no custody, no advice, no promised return. Not affiliated with NetNet Capital. Do not deposit money you are not prepared to lose.
+    Not affiliated with NetNet Capital. "Fund", "shares", "dividend", and "prospectus" are thematic terms. Nothing here is financial advice — do your own research.
   </footer>
 </div>
 
