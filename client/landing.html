@@ -1,114 +1,184 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VAULT CAPITAL // NAV-BACKED RESERVE · ROBINHOOD CHAIN</title>
-<meta name="description" content="Vault Capital: a NAV-backed reserve protocol on Robinhood Chain. Every VAULT is backed by at least 1 USDG. Dividends scale with the premium the market pays. Enroll, bond, loop.">
+<meta name="description" content="Vault Capital: a NAV-backed reserve protocol on Robinhood Chain. Every VAULT is backed by at least 1 USDG. Dividends scale with the premium the market pays.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#060606;--panel:#0b0b0b;--panel2:#101010;--line:rgba(255,255,255,.15);--line2:rgba(255,255,255,.28);--ink:#ece9e0;--sub:rgba(236,233,224,.56);--mut:rgba(236,233,224,.34);--accent:#fff;--disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+:root{--bg:#060606;--ink:#ece9e0;--sub:rgba(236,233,224,.55);--mut:rgba(236,233,224,.32);--line:rgba(255,255,255,.14);--line2:rgba(255,255,255,.3);--disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px);mix-blend-mode:overlay;opacity:.5}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background:linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:56px 56px;-webkit-mask:radial-gradient(120% 80% at 50% 0%,#000,transparent 76%);mask:radial-gradient(120% 80% at 50% 0%,#000,transparent 76%);opacity:.55}
-a{color:inherit;text-decoration:none}.mono{font-family:var(--mono)}.gold{color:var(--ink)}
-.wrap{max-width:1080px;margin:0 auto;padding:0 22px;position:relative;z-index:3}
-header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);background:rgba(6,6,6,.86);border-bottom:1px solid var(--line)}
-.hrow{display:flex;align-items:center;gap:18px;height:66px}
-.logo{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.18em;text-transform:uppercase}
-.crest{width:30px;height:30px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:var(--mono);font-weight:800;font-size:15px;background:#000}
-nav{margin-left:auto;display:flex;align-items:center;gap:2px}
-nav a{color:var(--sub);font-weight:600;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;padding:9px 14px}nav a:hover{color:var(--ink)}
-.btn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line2);border-radius:0;padding:12px 22px;cursor:pointer;display:inline-block;background:transparent;color:var(--ink)}
-.btn.gold{background:var(--ink);color:#000;border-color:var(--ink)}.btn.gold:hover{background:#fff}.btn.big{padding:16px 30px;font-size:12.5px}
-.btn.ghost{color:var(--ink)}.btn.ghost:hover{border-color:var(--ink)}
-.tag{display:inline-flex;align-items:center;gap:9px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:#000;border:1px solid var(--line2);border-radius:0;padding:8px 16px}
-.tag .d{width:6px;height:6px;border-radius:0;background:var(--ink);animation:bl 1.4s steps(1) infinite}@keyframes bl{50%{opacity:.15}}
-.hero{text-align:center;padding:84px 0 46px}
-h1{font-family:var(--disp);font-weight:700;font-size:78px;line-height:.94;letter-spacing:-.03em;margin-top:26px;text-transform:uppercase}
-h1 em{font-style:normal;color:var(--bg);-webkit-text-stroke:1.5px var(--ink);text-stroke:1.5px var(--ink)}
-.lede{color:var(--sub);font-size:15px;line-height:1.75;max-width:640px;margin:24px auto 0}
-.cta{display:flex;gap:12px;justify-content:center;margin-top:32px}
-.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:0;overflow:hidden;margin-top:58px}
-.strip .c{background:var(--bg);padding:24px 20px;text-align:center}
-.strip .v{font-family:var(--mono);font-weight:700;font-size:26px;color:var(--ink);letter-spacing:-.02em}
-.strip .l{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);margin-top:8px}
-@media(max-width:820px){.strip{grid-template-columns:repeat(2,1fr)}h1{font-size:48px}}
-.sec{padding:60px 0}
-.h2{font-family:var(--disp);font-weight:700;font-size:40px;text-align:center;letter-spacing:-.02em;text-transform:uppercase}
-.sub{color:var(--sub);text-align:center;max-width:600px;margin:14px auto 0;line-height:1.7;font-size:14px}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:38px}
-@media(max-width:820px){.cards{grid-template-columns:1fr}}
-.card{background:var(--bg);border:0;border-radius:0;padding:30px;position:relative}
-.card .n{font-family:var(--mono);color:var(--ink);font-size:12px;font-weight:700;letter-spacing:.14em}
-.card h3{font-family:var(--disp);font-weight:600;font-size:21px;margin:14px 0 10px;letter-spacing:.01em;text-transform:uppercase}
-.card p{color:var(--sub);font-size:13.5px;line-height:1.65}
-.big2{background:#000;border:1px solid var(--line2);border-radius:0;padding:52px 44px;margin-top:40px;text-align:center;position:relative}
-.big2 .q{font-family:var(--mono);font-style:normal;font-weight:500;font-size:23px;line-height:1.55;max-width:820px;margin:0 auto;color:var(--ink)}
-footer{border-top:1px solid var(--line);margin-top:40px;padding:34px 0;color:var(--mut);font-size:11.5px;line-height:1.8;text-align:center;letter-spacing:.02em}
+html{scroll-behavior:smooth}
+body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:40;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);mix-blend-mode:overlay;opacity:.5}
+a{color:inherit;text-decoration:none}
+/* ── top ticker tape ── */
+.tape{position:relative;z-index:10;border-bottom:1px solid var(--line);background:#000;overflow:hidden;white-space:nowrap;height:38px;display:flex;align-items:center}
+.tape .track{display:inline-flex;gap:44px;padding-left:100%;animation:scroll 26s linear infinite;font-size:12px;letter-spacing:.08em;color:var(--sub)}
+.tape .track b{color:var(--ink)}.tape .track span{color:var(--mut)}
+@keyframes scroll{to{transform:translateX(-100%)}}
+/* ── fixed side rail ── */
+.rail{position:fixed;left:0;top:0;bottom:0;width:52px;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 0;z-index:30;background:rgba(6,6,6,.6)}
+.rail .rec{display:flex;align-items:center;gap:7px;writing-mode:vertical-rl;font-size:10px;letter-spacing:.3em;color:var(--sub);text-transform:uppercase}
+.rail .dot{width:7px;height:7px;background:#ff3b30;border-radius:50%;animation:bl 1.3s steps(1) infinite}
+@keyframes bl{50%{opacity:.2}}
+.rail .vt{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;letter-spacing:.34em;color:var(--mut);text-transform:uppercase}
+.rail .id{writing-mode:vertical-rl;font-size:10px;letter-spacing:.2em;color:var(--mut)}
+.shell{margin-left:52px}
+@media(max-width:720px){.rail{display:none}.shell{margin-left:0}}
+/* ── top bar ── */
+.bar{display:flex;align-items:center;height:64px;padding:0 30px;border-bottom:1px solid var(--line);position:relative;z-index:10}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.2em;text-transform:uppercase}
+.crest{width:30px;height:30px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;background:#000}
+.bar nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+.bar nav a{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);padding:9px 14px}.bar nav a:hover{color:var(--ink)}
+.enter{border:1px solid var(--line2);background:var(--ink);color:#000!important;padding:11px 20px!important;font-weight:700}
+.enter:hover{background:#fff}
+.wrap{padding:0 30px;position:relative;z-index:5}
+/* ── HERO: asymmetric split ── */
+.hero{display:grid;grid-template-columns:1.35fr .95fr;gap:0;border-bottom:1px solid var(--line)}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
+.hero .L{padding:64px 40px 54px 30px;border-right:1px solid var(--line)}
+@media(max-width:900px){.hero .L{border-right:0;border-bottom:1px solid var(--line);padding:48px 24px}}
+.stamp{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);padding:8px 14px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink)}
+.stamp .b{width:6px;height:6px;background:var(--ink);animation:bl 1.4s steps(1) infinite}
+.giant{font-family:var(--disp);font-weight:700;text-transform:uppercase;line-height:.86;letter-spacing:-.03em;margin-top:30px;font-size:clamp(64px,11vw,152px)}
+.giant .o{color:var(--bg);-webkit-text-stroke:1.6px var(--ink)}
+.tagline{margin-top:26px;font-size:14px;line-height:1.75;color:var(--sub);max-width:520px}
+.tagline b{color:var(--ink);font-weight:600}
+.heroCta{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line2);padding:15px 26px;cursor:pointer;background:transparent;color:var(--ink);display:inline-block}
+.btn.solid{background:var(--ink);color:#000;border-color:var(--ink)}.btn.solid:hover{background:#fff}.btn:hover{border-color:var(--ink)}
+/* readout panel (right) */
+.hero .R{padding:40px 30px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
+.rd{border:1px solid var(--line);background:#000}
+.rd .hd{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.rd .big{padding:26px 18px 8px;font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.rd .cap{padding:0 18px 22px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sub)}
+.rd .split{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.rd .cell{padding:16px 18px}.rd .cell+.cell{border-left:1px solid var(--line)}
+.rd .cell .l{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.rd .cell .v{font-size:24px;font-weight:700;margin-top:7px;letter-spacing:-.02em}
+.cursor{display:inline-block;width:11px;height:1.05em;background:var(--ink);vertical-align:-2px;margin-left:2px;animation:bl 1s steps(1) infinite}
+/* ── THE NUMBER band ── */
+.number{border-bottom:1px solid var(--line);padding:54px 30px;display:flex;align-items:flex-end;gap:34px;flex-wrap:wrap}
+.number .huge{font-family:var(--disp);font-weight:700;font-size:clamp(90px,18vw,240px);line-height:.8;letter-spacing:-.04em}
+.number .side{padding-bottom:14px}
+.number .side .l{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut)}
+.number .side p{margin-top:12px;max-width:340px;font-size:13px;line-height:1.7;color:var(--sub)}
+/* ── MANIFEST rows ── */
+.mani{border-bottom:1px solid var(--line)}
+.mrow{display:grid;grid-template-columns:120px 1fr 2fr;gap:20px;align-items:baseline;padding:30px;border-top:1px solid var(--line);transition:.15s}
+.mrow:first-child{border-top:0}
+.mrow:hover{background:var(--ink);color:#000}
+.mrow:hover .mn,.mrow:hover .md{color:#000}
+.mrow .mn{font-size:13px;letter-spacing:.14em;color:var(--mut)}
+.mrow h3{font-family:var(--disp);font-weight:600;font-size:26px;text-transform:uppercase;letter-spacing:-.01em}
+.mrow .md{font-size:13px;line-height:1.65;color:var(--sub)}
+@media(max-width:720px){.mrow{grid-template-columns:1fr;gap:8px}}
+.sechead{padding:44px 30px 4px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut)}
+/* ── redacted excerpt ── */
+.excerpt{padding:54px 30px 60px}
+.exbox{border:1px solid var(--line2);background:#000;padding:40px}
+.exbox .meta{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px}
+.exbox p{font-size:16px;line-height:1.9;color:var(--ink)}
+.rdc{background:var(--ink);color:transparent;padding:0 4px;border-radius:0;user-select:none}
+.exbox .sig{margin-top:26px;font-size:12px;letter-spacing:.1em;color:var(--sub)}
+footer{border-top:1px solid var(--line);padding:32px 30px;color:var(--mut);font-size:11px;line-height:1.85;letter-spacing:.02em}
+footer a{color:var(--ink)}
 </style></head><body>
 
-<header><div class="wrap"><div class="hrow">
-  <div class="logo"><span class="crest">V</span>Vault Capital</div>
-  <nav>
-    <a href="/app">App</a><a href="/docs">Prospectus</a>
-    <a class="btn gold" href="/app" style="margin-left:6px">Enter Shareholder Services →</a>
-  </nav>
-</div></div></header>
+<!-- ticker tape -->
+<div class="tape"><div class="track" id="tape">— INITIALIZING —</div></div>
 
-<div class="wrap">
+<!-- side rail -->
+<div class="rail">
+  <div class="rec"><span class="dot"></span>REC</div>
+  <div class="vt">NAV-BACKED RESERVE // ROBINHOOD CHAIN</div>
+  <div class="id">VLT·04</div>
+</div>
+
+<div class="shell">
+  <!-- top bar -->
+  <div class="bar">
+    <div class="brand"><span class="crest">V</span>Vault&nbsp;Capital</div>
+    <nav>
+      <a href="/app">App</a><a href="/docs">Prospectus</a>
+      <a class="btn enter" href="/app">Enter Shareholder Services →</a>
+    </nav>
+  </div>
+
+  <!-- HERO -->
   <div class="hero">
-    <span class="tag"><span class="d"></span>NAV-backed reserve · Robinhood Chain · immutable policy</span>
-    <h1>A fund with a <em>floor</em><br>and a printing press.</h1>
-    <div class="lede">VAULT is a reserve currency in the shape of a capital-management fund. Every VAULT is backed by at least 1 USDG of risk-free treasury value — a hard floor you can redeem against, 1:1, at any time. Above that floor, dividends compound every eight hours, scaled to the premium the market is willing to pay.</div>
-    <div class="cta"><a class="btn gold big" href="/app">Enter Shareholder Services →</a><a class="btn ghost big" href="/docs">Read the Prospectus</a></div>
-
-    <div class="strip">
-      <div class="c"><div class="v" id="sApy">—</div><div class="l">Dividend APY</div></div>
-      <div class="c"><div class="v" id="sNav">—</div><div class="l">NAV floor</div></div>
-      <div class="c"><div class="v" id="sPrem">—</div><div class="l">Premium</div></div>
-      <div class="c"><div class="v" id="sTre">—</div><div class="l">Treasury</div></div>
+    <div class="L">
+      <span class="stamp"><span class="b"></span>Classified · Immutable Policy</span>
+      <div class="giant">Vault<br>Cap<span class="o">ital</span></div>
+      <div class="tagline">A reserve currency in the shape of a capital-management fund. Every VAULT is backed by at least <b>1 USDG</b> of risk-free value — a hard floor you redeem against, <b>1:1</b>, at any hour. Above it, the press runs, scaled to the premium the market will pay.</div>
+      <div class="heroCta"><a class="btn solid" href="/app">Enter Shareholder Services →</a><a class="btn" href="/docs">Read the Prospectus</a></div>
+    </div>
+    <div class="R">
+      <div class="rd">
+        <div class="hd"><span>LIVE READOUT</span><span id="rdClock">◵ SYNC</span></div>
+        <div class="big" id="rdNav">—</div>
+        <div class="cap">NAV · risk-free floor / VAULT<span class="cursor"></span></div>
+        <div class="split">
+          <div class="cell"><div class="l">Premium</div><div class="v" id="rdPrem">—</div></div>
+          <div class="cell"><div class="l">Dividend APY</div><div class="v" id="rdApy">—</div></div>
+        </div>
+        <div class="split" style="border-top:1px solid var(--line)">
+          <div class="cell"><div class="l">Treasury</div><div class="v" id="rdTre">—</div></div>
+          <div class="cell"><div class="l">Supply</div><div class="v" id="rdSup">—</div></div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="wrap sec">
-  <div class="h2">Four ways to hold the fund.</div>
-  <div class="sub">The same NAV engine, four instruments — from the simplest deposit to a one-click leverage loop.</div>
-  <div class="cards">
-    <div class="card"><div class="n">01 · ENROLL</div><h3>Dividend Program</h3><p>Enroll VAULT, receive sVAULT, and compound every distribution automatically. Nothing to claim. Redemption is 1:1 and immediate — the floor is always there.</p></div>
-    <div class="card"><div class="n">02 · BOND</div><h3>Equity Bond Desk</h3><p>Subscribe in USDG for VAULT notes at a discount to market, floored at NAV so every sale grows the backing. Notes vest over two days.</p></div>
-    <div class="card"><div class="n">03 · LOOP</div><h3>Loopback Credit</h3><p>Borrow USDG against your enrolled shares, buy more VAULT, and enroll it — a Lombard leverage loop in a single transaction, with a live health meter.</p></div>
+  <!-- THE NUMBER -->
+  <div class="number">
+    <div class="huge" id="bigPrem">—</div>
+    <div class="side">
+      <div class="l">Premium over NAV</div>
+      <p>The multiple the market pays over backing. It is the only input to the dividend — zero payout at 1×, saturating at 1.75×. The fund prints exactly the confidence extended to it. No more.</p>
+    </div>
   </div>
 
-  <div class="big2">
-    <div class="tag" style="margin-bottom:20px"><span class="d"></span>The whole policy, in one line</div>
-    <div class="q">"rate = R_MAX × clamp((P − 1) / (K − 1), 0, 1). Zero at NAV, full at the premium K. No admin can change it — the only way to change the dividend is to deploy a different fund."</div>
+  <!-- MANIFEST -->
+  <div class="sechead">// Instruments</div>
+  <div class="mani">
+    <div class="mrow"><div class="mn">01 · ENROLL</div><h3>Dividend Program</h3><div class="md">Enroll VAULT, receive sVAULT, compound every distribution automatically. Nothing to claim. Redemption is 1:1 and immediate — the floor never moves.</div></div>
+    <div class="mrow"><div class="mn">02 · BOND</div><h3>Equity Bond Desk</h3><div class="md">Subscribe in USDG for VAULT notes at a discount to market, floored at NAV so every sale grows backing. Notes vest over two days.</div></div>
+    <div class="mrow"><div class="mn">03 · LOOP</div><h3>Loopback Credit</h3><div class="md">Borrow USDG against enrolled shares, buy more VAULT, enroll it — a Lombard leverage loop in a single transaction, with a live health meter.</div></div>
+    <div class="mrow"><div class="mn">04 · BACKING</div><h3>The Reserve Cap</h3><div class="md">The distributor can never mint past the treasury's risk-free value. The printing press is wired to the vault door — enforced every epoch, by the contract, not an admin.</div></div>
   </div>
-</div>
 
-<div class="wrap sec">
-  <div class="h2">Backed, not printed into thin air.</div>
-  <div class="sub">The difference between a reserve and a Ponzi is the floor. VAULT keeps one, on-chain, and quotes around it from both sides — buying below NAV, selling above it.</div>
-  <div class="cards">
-    <div class="card"><div class="n">◆ FLOOR</div><h3>1 USDG minimum</h3><p>Every VAULT is backed by at least one USDG of risk-free reserves. NAV never counts treasury-held VAULT above that floor.</p></div>
-    <div class="card"><div class="n">◆ PREMIUM</div><h3>Earn only when it's earned</h3><p>Dividends turn off at or below NAV and saturate at a 1.75× premium. The fund pays out exactly what the market's confidence justifies.</p></div>
-    <div class="card"><div class="n">◆ ACCRETIVE</div><h3>Every bond grows backing</h3><p>Bonds are floored at NAV, so the treasury can never sell VAULT below its existing backing. The floor only rises.</p></div>
+  <!-- REDACTED EXCERPT -->
+  <div class="excerpt">
+    <div class="sechead" style="padding:0 0 18px">// Prospectus — Excerpt §2</div>
+    <div class="exbox">
+      <div class="meta"><span>DOC · VLT-PROSPECTUS</span><span>EMISSIONS POLICY</span></div>
+      <p>rate = R_MAX × clamp((P − 1) / (K − 1), 0, 1). At or below NAV the dividend is <span class="rdc">absolutely</span> zero. At a 1.75× premium it pays the <span class="rdc">full</span> 0.45% per epoch. No admin can alter the epoch, R_MAX, K, the <span class="rdc">source pair</span>, or the fee split. The only way to change the dividend policy is to deploy a <span class="rdc">different fund</span>.</p>
+      <div class="sig">— filed on Robinhood Chain · immutable at deployment</div>
+    </div>
   </div>
-</div>
 
-<footer><div class="wrap">
-  <div style="font-family:var(--serif);font-size:18px;color:var(--accent);margin-bottom:8px">Vault Capital · Shareholder Services</div>
-  NAV-backed reserve protocol on Robinhood Chain · <a href="/app" class="gold">App</a> · <a href="/docs" class="gold">Prospectus</a><br>
-  $VAULT is an experiment. The fund, its NAV, dividends, bonds and credit facility are a simulation — an off-chain ledger, not audited contracts. Nothing here custodies your funds, nothing here is investment advice, and no return is promised. Not affiliated with NetNet Capital. Do not deposit money you are not prepared to lose.
-</div></footer>
+  <footer>
+    VAULT CAPITAL // <a href="/app">App</a> · <a href="/docs">Prospectus</a> · Robinhood Chain<br>
+    $VAULT is an experiment — an off-chain simulation, not audited contracts, no custody, no advice, no promised return. Not affiliated with NetNet Capital. Do not deposit money you are not prepared to lose.
+  </footer>
+</div>
 
 <script>
 fetch('/api/metrics').then(r=>r.json()).then(m=>{
   const f=(n)=>'$'+(Math.abs(n)>=1e6?(n/1e6).toFixed(2)+'M':Math.abs(n)>=1e3?(n/1e3).toFixed(1)+'K':n.toFixed(2));
-  document.getElementById('sApy').textContent=Math.round(m.apy).toLocaleString()+'%';
-  document.getElementById('sNav').textContent=f(m.nav);
-  document.getElementById('sPrem').textContent=m.premium.toFixed(1)+'×';
-  document.getElementById('sTre').textContent=f(m.treasury);
-}).catch(()=>{});
+  const t=(n)=>Math.abs(n)>=1e6?(n/1e6).toFixed(2)+'M':Math.abs(n)>=1e3?Math.round(n).toLocaleString():n.toFixed(0);
+  document.getElementById('rdNav').textContent=f(m.nav);
+  document.getElementById('rdPrem').textContent=m.premium.toFixed(2)+'×';
+  document.getElementById('rdApy').textContent=Math.round(m.apy).toLocaleString()+'%';
+  document.getElementById('rdTre').textContent=f(m.treasury);
+  document.getElementById('rdSup').textContent=t(m.supply);
+  document.getElementById('bigPrem').textContent=m.premium.toFixed(1)+'×';
+  document.getElementById('rdClock').textContent='● LIVE';
+  const seg=['NAV '+f(m.nav),'PREMIUM '+m.premium.toFixed(2)+'×','DIVIDEND APY '+Math.round(m.apy).toLocaleString()+'%','TREASURY '+f(m.treasury),'MARKET '+f(m.marketPrice),'SUPPLY '+t(m.supply)+' VAULT','BUYBACK '+f(m.buybackBid),'EPOCH 0.45% / 8H'];
+  document.getElementById('tape').innerHTML=Array(3).fill(seg.map(s=>{const p=s.split(' ');const v=p.pop();return '<span>'+p.join(' ')+'</span> <b>'+v+'</b>';}).join(' &nbsp;·&nbsp; ')).join(' &nbsp;·&nbsp; ');
+}).catch(()=>{document.getElementById('tape').textContent='— OFFLINE —';});
 </script>
 </body></html>
