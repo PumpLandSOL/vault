@@ -143,6 +143,7 @@ async function pollDex() {
     pairs.sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
     const p = pairs[0]; if (!p) return;
     poolPrice = +p.priceUsd; poolMcap = +(p.marketCap || p.fdv || 0); poolLiq = (p.liquidity && p.liquidity.usd) || 0; hasPool = true;
+    if (+p.priceNative > 0) db.ethUsd = poolPrice / +p.priceNative;   // native (ETH) USD price, for bond valuation
     db.marketPrice = poolPrice;
     const realSupply = poolMcap > 0 ? poolMcap / poolPrice : db.supply;
     db.supply = realSupply;                                   // track the real circulating supply
@@ -190,7 +191,7 @@ function metrics() {
     buybackBid: buybackBid(), tradeTax: TRADE_TAX, loopLtv: LOOP_LTV, loopApr: LOOP_APR,
     marketCap: hasPool && poolMcap > 0 ? poolMcap : db.marketPrice * db.supply, liquidity: hasPool ? poolLiq : null, live: hasPool,
     reserveBook: RESERVE.map((h) => ({ sym: h.sym, name: h.name, kind: h.kind, weight: h.w, valueUsd: db.treasury * h.w, yield: h.y })),
-    realYield: REAL_YIELD * 100, rwaValue: db.treasury,
+    realYield: REAL_YIELD * 100, rwaValue: db.treasury, ethUsd: db.ethUsd || 0,
     curve, leaderboard: board, tape: db.tape.slice(0, 12), treasuryWallet: TREASURY_WALLET,
     floor: db.floor, floorRaises: db.floorRaises, floorSinceHrs: (Date.now() - db.floorSince) / 3600000,
     backingAdded: Math.max(0, (db.floor - db.navHist[0].nav) * db.supply), navHist: db.navHist,
@@ -279,14 +280,27 @@ http.createServer(async (req, res) => {
       tapePush('redeem', a, amt, 'VAULT'); save();
       return json(res, 200, { ok: true, queued: VAULT_MINT ? +amt.toFixed(6) : 0, ...account(a) });
     }
-    // Bond desk: subscribe USDG for VAULT notes at a discount, vesting over BOND_VEST_DAYS
+    // Bond desk: sell an asset to the protocol for discounted VAULT that vests. Once $VAULT is live,
+    // bonds are a REAL on-chain ETH deposit to the treasury (the pair's quote asset) — reserves grow for real.
     if (u === '/api/bond') {
-      const usd = Math.max(0, Math.min(+d.amount || 0, w.usdg));
+      if (VAULT_MINT) {
+        if (!/^0x[0-9a-fA-F]{64}$/.test(d.txHash || '')) return json(res, 200, { error: 'bonds send ETH to the treasury first — missing deposit tx' });
+        if (db.tape.some((e) => e.tx === d.txHash)) return json(res, 200, { error: 'deposit already credited' });
+        const eth = +d.amount || 0; if (eth <= 0) return json(res, 200, { error: 'enter an ETH amount' });
+        const usdVal = eth * (db.ethUsd || 0); if (usdVal <= 0) return json(res, 200, { error: 'price feed warming up — try again' });
+        const payout = usdVal / bondPrice();
+        const now = Date.now();
+        w.bonds.push({ payout, start: now, end: now + BOND_VEST_DAYS * 86400000, claimed: 0, done: false });
+        db.treasury += usdVal;   // real ETH value lands in reserves → accretive to the floor
+        tapePush('bond', a, payout, 'VAULT'); db.tape[0].tx = d.txHash; save();
+        return json(res, 200, { ok: true, payout, ...account(a) });
+      }
+      const usd = Math.max(0, Math.min(+d.amount || 0, w.usdg));   // pre-launch ledger
       if (usd <= 0) return json(res, 200, { error: 'enter a USDG amount' });
       const payout = usd / bondPrice();
       const now = Date.now();
       w.usdg -= usd; w.bonds.push({ payout, start: now, end: now + BOND_VEST_DAYS * 86400000, claimed: 0, done: false });
-      db.treasury += usd; db.supply += payout;   // accretive: reserves grow, note vests into supply
+      db.treasury += usd; db.supply += payout;
       tapePush('bond', a, payout, 'VAULT'); save();
       return json(res, 200, { ok: true, payout, ...account(a) });
     }

@@ -39,7 +39,18 @@
   // fetch
   async function loadMetrics() { try { M = await (await fetch('/api/metrics')).json(); reanchor(); renderMetrics(); } catch (e) {} }
   async function loadAccount() { if (!isW(wallet)) return; try { A = await (await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ wallet }) })).json(); reanchor(); renderAccount(); } catch (e) {} }
-  async function loadConfig() { try { CFG = await (await fetch('/api/config')).json(); if (CFG && CFG.live) { if ($('buyBtn')) $('buyBtn').textContent = 'Buy on DEX ↗'; const bp = document.querySelector('#buy .psub'); if (bp) bp.textContent = 'Once live, $VAULT trades on the open market. Buy on the DEX, then enroll it here to earn the dividend.'; } } catch (e) {} }
+  async function loadConfig() {
+    try {
+      CFG = await (await fetch('/api/config')).json();
+      if (CFG && CFG.live) {
+        if ($('buyBtn')) $('buyBtn').textContent = 'Buy on DEX ↗';
+        const bp = document.querySelector('#buy .psub'); if (bp) bp.textContent = 'Once live, $VAULT trades on the open market. Buy on the DEX, then enroll it here to earn the dividend.';
+        if ($('bondUnit')) $('bondUnit').textContent = 'ETH';
+        if ($('bondAmt')) $('bondAmt').placeholder = '0.00 ETH';
+        const bd = document.querySelector('#bond .psub'); if (bd) bd.textContent = 'Bond ETH to the treasury for discounted VAULT notes that vest over 2 days. Every bond grows real reserves and lifts the floor.';
+      }
+    } catch (e) {}
+  }
   // real on-chain $VAULT balance, read server-side from the Robinhood Chain RPC
   async function loadChainBalance() {
     if (!isW(wallet)) { chainBal = null; return; }
@@ -228,9 +239,38 @@
     toast(r.queued ? 'Redemption queued — ' + tok(r.queued) + ' VAULT paid from treasury' : 'Redeemed ' + tok(amt) + ' VAULT'); loadMetrics();
   };
 
-  $('bondBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('bondAmt').value); if (!(amt > 0)) return toast('enter USDG'); const r = await post('/api/bond', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; renderAccount(); $('bondAmt').value = ''; toast('Bonded — ' + tok(r.payout) + ' VAULT vesting'); loadMetrics(); };
+  // native ETH transfer to the treasury; resolves with the confirmed tx hash
+  async function depositEth(amount) {
+    await ensureChain();
+    const wei = BigInt(Math.floor(amount * 1e9)) * (10n ** 9n);   // 18-decimal ETH
+    const txHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: wallet, to: CFG.treasury, value: '0x' + wei.toString(16) }] });
+    for (let i = 0; i < 40; i++) { try { const rc = await window.ethereum.request({ method: 'eth_getTransactionReceipt', params: [txHash] }); if (rc && rc.blockNumber) { if (rc.status && rc.status !== '0x1') throw new Error('transfer failed'); return txHash; } } catch (e) { if (String(e.message).includes('failed')) throw e; } await new Promise((r) => setTimeout(r, 1500)); }
+    return txHash;
+  }
+  $('bondBtn').onclick = async () => {
+    if (!isW(wallet)) return toast('connect first');
+    const live = CFG && CFG.live;
+    const amt = parseFloat($('bondAmt').value); if (!(amt > 0)) return toast(live ? 'enter an ETH amount' : 'enter USDG');
+    if (live) {
+      if (!window.ethereum) return toast('no EVM wallet found');
+      const btn = $('bondBtn'); const old = btn.textContent; btn.textContent = 'Confirm in wallet…'; btn.disabled = true;
+      try {
+        const txHash = await depositEth(amt);
+        toast('Deposit sent — vesting your note…');
+        const r = await post('/api/bond', { wallet, amount: amt, txHash });
+        if (r.error) { btn.textContent = old; btn.disabled = false; return toast(r.error); }
+        A = r; renderAccount(); $('bondAmt').value = ''; toast('Bonded — ' + tok(r.payout) + ' VAULT vesting'); loadMetrics();
+      } catch (e) { toast(e && e.code === 4001 ? 'transaction rejected' : (e.message || 'bond failed')); }
+      btn.textContent = old; btn.disabled = false; return;
+    }
+    const r = await post('/api/bond', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; renderAccount(); $('bondAmt').value = ''; toast('Bonded — ' + tok(r.payout) + ' VAULT vesting'); loadMetrics();
+  };
   $('bondAmt').addEventListener('input', calcBond);
-  function calcBond() { if (!M) return; const amt = parseFloat($('bondAmt').value) || 0; $('bondPrice').textContent = pxN(M.bondPrice) + ' USDG'; $('bondOut').textContent = tok(amt / M.bondPrice) + ' VAULT'; $('bondDisc').textContent = pctf(M.bondDiscount) + ' discount · ' + M.bondVestDays + '-day vest'; }
+  function calcBond() {
+    if (!M) return; const amt = parseFloat($('bondAmt').value) || 0; const live = CFG && CFG.live;
+    if (live && M.ethUsd > 0) { const usd = amt * M.ethUsd; $('bondPrice').textContent = pxN(M.bondPrice) + ' USDG'; $('bondOut').textContent = tok(usd / M.bondPrice) + ' VAULT'; $('bondDisc').textContent = pctf(M.bondDiscount) + ' discount · ' + M.bondVestDays + '-day vest · deposits ETH to treasury'; }
+    else { $('bondPrice').textContent = pxN(M.bondPrice) + ' USDG'; $('bondOut').textContent = tok(amt / M.bondPrice) + ' VAULT'; $('bondDisc').textContent = pctf(M.bondDiscount) + ' discount · ' + M.bondVestDays + '-day vest'; }
+  }
   async function doClaim(autostake) { const r = await post('/api/claim', { wallet, autostake }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); toast(autostake ? 'Claimed & enrolled ' + tok(r.claimed) : 'Claimed ' + tok(r.claimed) + ' VAULT'); }
 
   // Credit Desk — borrow against sVAULT
