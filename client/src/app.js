@@ -189,7 +189,18 @@
     $('aStaked').textContent = tok(A.staked) + ' sVAULT';
     $('aNext').textContent = '+' + (A.staked * (M ? M.epochRate : 0)).toFixed(3) + ' VAULT';
     if ($('aLoan')) $('aLoan').textContent = tok(A.loan) + ' USDG';
-    renderBonds(); calcLoop(); renderCredit();
+    renderBonds(); calcLoop(); renderCredit(); renderTier();
+  }
+  // Seniority Ladder
+  function renderTier() {
+    if (!A || !A.tier) return;
+    const t = A.tier;
+    if ($('tierRank')) $('tierRank').textContent = A.staked > 0 ? t.rank : '— not enrolled —';
+    if ($('tierMult')) $('tierMult').textContent = t.mult.toFixed(1) + '× dividend';
+    if ($('tierNext')) $('tierNext').textContent = t.next ? 'next: ' + t.next.rank + ' (' + t.next.mult.toFixed(1) + '×)' : 'top rank — maximum multiplier';
+    if ($('tierDays')) $('tierDays').textContent = A.staked > 0 ? (t.next ? t.daysToNext.toFixed(1) + 'd to promotion' : t.days.toFixed(1) + 'd enrolled') : 'enroll to start climbing';
+    if ($('tierProg')) { let p = 100; if (t.next) { const prev = (A.ladder || []).filter((l) => l.days <= t.days + 1e-9).pop() || { days: 0 }; const span = t.next.days - prev.days; p = span > 0 ? clamp(((t.days - prev.days) / span) * 100, 0, 100) : 0; } $('tierProg').style.width = p.toFixed(0) + '%'; }
+    if ($('ladderRows') && A.ladder) $('ladderRows').innerHTML = A.ladder.map((l) => `<div class="row"><span${l.rank === t.rank && A.staked > 0 ? ' style="color:var(--accent);font-weight:700"' : ''}>${l.rank === t.rank && A.staked > 0 ? '▸ ' : ''}${l.rank}</span><span><b>${l.mult.toFixed(1)}×</b> · day ${l.days}+</span></div>`).join('');
   }
   function renderBonds() {
     const box = $('yourBonds'); if (!box) return;

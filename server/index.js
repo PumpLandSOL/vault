@@ -45,6 +45,22 @@ const BUYBACK_SPREAD = 0.015;                              // standing bid at NA
 const LOOP_LTV = +(process.env.LOOP_LTV || 0.5);           // borrow up to 50% of sVAULT value
 const LOOP_APR = +(process.env.LOOP_APR || 0.12);          // 12% APR on borrowed USDG
 const LIQ_LTV = +(process.env.LIQ_LTV || 0.75);            // liquidation threshold (loan / collateral)
+// ---- THE SENIORITY LADDER ---- the longer you stay enrolled, the bigger your dividend multiplier.
+// Tenure builds while staked and RESETS if you redeem. Ranks are thematic; the multiplier is real:
+// each epoch, wallets earn bonus sVAULT on top of the base rebase, scaled by their tenure multiplier.
+const LADDER = [
+  { rank: 'Associate', days: 0,  mult: 1.0 },
+  { rank: 'Manager',   days: 3,  mult: 1.2 },
+  { rank: 'Director',  days: 7,  mult: 1.4 },
+  { rank: 'Partner',   days: 14, mult: 1.7 },
+  { rank: 'Chairman',  days: 30, mult: 2.0 },
+];
+function tierOf(enrolledAt) {
+  const days = enrolledAt ? (Date.now() - enrolledAt) / 86400000 : 0;
+  let cur = LADDER[0], next = null;
+  for (const t of LADDER) { if (days >= t.days) cur = t; else { next = t; break; } }
+  return { ...cur, days, next, daysToNext: next ? Math.max(0, next.days - days) : 0 };
+}
 const EPOCHS_YR = 31557600 / EPOCH_SEC;
 // ---- 48-HOUR APY BOOST ---- limited-time inflated dividend; compounds for real while live.
 const BOOST_APY = +(process.env.BOOST_APY || 250000);   // headline boosted APY %
@@ -104,6 +120,8 @@ const isWallet = (s) => /^0x[a-fA-F0-9]{40}$/.test(s);
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 const SEED_USDG = +(process.env.SEED_USDG || 1e9);         // starting USDG — no perceived cap on how much you can buy/enroll
 
+// live pool state (declared early: distribute/catchup run at load)
+let poolPrice = 0, poolMcap = 0, poolLiq = 0, hasPool = false;
 // ---- core math ----
 function nav() { return db.treasury / db.supply; }                       // USDG per VAULT (treasury-backed)
 function premium() { return db.marketPrice / nav(); }                    // P
@@ -123,6 +141,14 @@ function distribute() {
   const applied = db.totalAgons > 0 && db.index > 0 ? actual / (db.totalAgons * db.index) : 0;
   db.index *= (1 + applied);
   if (!hasPool) db.supply += actual;   // when live, supply is set from the chain, not minted here
+  // Seniority Ladder: tenured wallets earn BONUS sVAULT on top of the base rebase.
+  // bonus rate = baseRate × (multiplier − 1), credited as extra agons per wallet.
+  const baseApplied = applied;
+  for (const [addr, w] of Object.entries(db.wallets)) {
+    if (!(w.agons > 0) || !w.enrolledAt) continue;
+    const m = tierOf(w.enrolledAt).mult;
+    if (m > 1) { const bonus = w.agons * baseApplied * (m - 1); w.agons += bonus; db.totalAgons += bonus; }
+  }
   db.epoch++; db.lastEpoch = Date.now(); save();
 }
 (function catchup() { const missed = Math.floor((Date.now() - db.lastEpoch) / 1000 / EPOCH_SEC); for (let i = 0; i < Math.min(missed, 5000); i++) distribute(); })();
@@ -133,7 +159,7 @@ function liveIndex() {
 }
 // ---- live market data ---- once $VAULT is live, mirror the real pool price/mcap/supply from DexScreener,
 // and rebase the protocol economy (supply, treasury/backing) once so NAV & premium are coherent with the chart.
-let poolPrice = 0, poolMcap = 0, poolLiq = 0, hasPool = false;
+
 async function pollDex() {
   if (!VAULT_MINT) return;
   try {
@@ -210,7 +236,9 @@ function account(a) {
   const health = loan > 0 ? (collateralUsd * LIQ_LTV) / loan : null;   // >1 = safe, <1 = liquidatable
   const currentLtv = collateralUsd > 0 ? loan / collateralUsd : 0;
   const pendingOut = db.withdrawals.filter((x) => x.wallet === a && x.status === 'pending').reduce((s, x) => s + x.amount, 0);
-  return { wallet: a, usdg: w.usdg, vault: w.vault, staked, index: +idx.toFixed(6), nextReward: staked * epochRate(), bonds, loan, borrowable, collateralUsd, health, currentLtv, maxLtv: LOOP_LTV, liqLtv: LIQ_LTV, loanApr: LOOP_APR, pendingOut, seeded: !!w.seeded };
+  const tier = w.agons > 0 ? tierOf(w.enrolledAt) : tierOf(null);
+  return { wallet: a, usdg: w.usdg, vault: w.vault, staked, index: +idx.toFixed(6), nextReward: staked * epochRate() * tier.mult, bonds, loan, borrowable, collateralUsd, health, currentLtv, maxLtv: LOOP_LTV, liqLtv: LIQ_LTV, loanApr: LOOP_APR, pendingOut,
+    tier: { rank: tier.rank, mult: tier.mult, days: +tier.days.toFixed(2), next: tier.next ? { rank: tier.next.rank, mult: tier.next.mult, days: tier.next.days } : null, daysToNext: +tier.daysToNext.toFixed(2) }, ladder: LADDER, seeded: !!w.seeded };
 }
 
 // ---- http ----
@@ -258,13 +286,13 @@ http.createServer(async (req, res) => {
         if (!/^0x[0-9a-fA-F]{64}$/.test(d.txHash || '')) return json(res, 200, { error: 'enroll sends $VAULT to the treasury first — missing deposit tx' });
         if (db.tape.some((e) => e.tx === d.txHash)) return json(res, 200, { error: 'deposit already credited' });
         const amt = +d.amount || 0; if (amt <= 0) return json(res, 200, { error: 'nothing to enroll' });
-        const idx = liveIndex(); const ag = amt / idx; w.agons += ag; db.totalAgons += ag;
+        const idx = liveIndex(); const ag = amt / idx; if (!(w.agons > 0)) w.enrolledAt = Date.now(); w.agons += ag; db.totalAgons += ag;
         tapePush('enroll', a, amt, 'VAULT'); db.tape[0].tx = d.txHash; save();
         return json(res, 200, { ok: true, ...account(a) });
       }
       const amt = Math.max(0, Math.min(+d.amount || 0, w.vault));   // pre-launch: off-chain ledger
       if (amt <= 0) return json(res, 200, { error: 'nothing to enroll' });
-      const idx = liveIndex(); const ag = amt / idx; w.vault -= amt; w.agons += ag; db.totalAgons += ag;
+      const idx = liveIndex(); const ag = amt / idx; w.vault -= amt; if (!(w.agons > 0)) w.enrolledAt = Date.now(); w.agons += ag; db.totalAgons += ag;
       tapePush('enroll', a, amt, 'VAULT'); save();
       return json(res, 200, { ok: true, ...account(a) });
     }
@@ -274,7 +302,7 @@ http.createServer(async (req, res) => {
       const idx = liveIndex(); const have = stakedOf(w, idx);
       const amt = Math.max(0, Math.min(+d.amount || 0, have));
       if (amt <= 0) return json(res, 200, { error: 'nothing enrolled' });
-      const ag = amt / idx; w.agons = Math.max(0, w.agons - ag); db.totalAgons = Math.max(0, db.totalAgons - ag);
+      const ag = amt / idx; w.agons = Math.max(0, w.agons - ag); db.totalAgons = Math.max(0, db.totalAgons - ag); w.enrolledAt = w.agons > 0 ? Date.now() : null;  // redeeming resets seniority
       if (VAULT_MINT) { db.withdrawals.push({ wallet: a, amount: +amt.toFixed(6), t: Date.now(), status: 'pending' }); }
       else { w.vault += amt; }
       tapePush('redeem', a, amt, 'VAULT'); save();

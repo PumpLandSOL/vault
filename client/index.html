@@ -211,6 +211,17 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
     <div class="meta" style="border:0;padding-top:6px"><span>Treasury wallet</span><a id="treasuryLink" href="#" target="_blank" rel="noopener" class="mono" style="color:var(--accent)">—</a></div>
   </div>
   <div class="panel">
+    <div class="ptitle" style="font-size:19px">The Seniority Ladder</div>
+    <div class="psub">the longer you stay enrolled, the bigger your dividend multiplier — up to <b>2×</b>. Redeeming resets your rank.</div>
+    <div style="display:flex;align-items:baseline;gap:14px;margin-top:14px">
+      <div class="mono" id="tierRank" style="font-family:var(--disp);font-size:30px;font-weight:700;color:var(--accent)">—</div>
+      <div class="mono" id="tierMult" style="font-size:20px;font-weight:700;color:var(--ink)">—</div>
+    </div>
+    <div class="health" style="margin-top:12px"><i id="tierProg" style="width:0%;background:var(--accent)"></i></div>
+    <div class="meta" style="border:0;padding-top:8px"><span id="tierNext">—</span><span id="tierDays">—</span></div>
+    <div id="ladderRows" class="rows" style="margin-top:6px"></div>
+  </div>
+  <div class="panel">
     <div class="ptitle" style="font-size:19px">Your Statement</div>
     <div class="rows">
       <div class="row"><span>USDG balance</span><b id="aUsdg">—</b></div>
