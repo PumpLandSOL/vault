@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
+:root{--bg:#f3f0e7;--ink:#14251c;--sub:rgba(20,37,28,.6);--mut:rgba(20,37,28,.36);--line:rgba(20,37,28,.15);--line2:rgba(20,37,28,.3);--accent:#0f6b4f;--deep:#0c5a41;--cream:#f3f0e7;--creamsub:rgba(243,240,231,.7);--disp:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{font-family:var(--mono);color:var(--ink);background:var(--bg)}
+.stage{position:relative;overflow:hidden;background:var(--bg)}
+.grid{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,37,28,.04) 1px,transparent 1px),linear-gradient(0deg,rgba(20,37,28,.04) 1px,transparent 1px);background-size:60px 60px;-webkit-mask:radial-gradient(130% 90% at 50% 0%,#000,transparent 82%)}
+.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:-.03em}
+.mono{font-family:var(--mono)}
+.crest{border:2px solid var(--deep);background:var(--deep);color:var(--cream);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:800}
+.o{color:var(--bg);-webkit-text-stroke-color:var(--deep)}
+
+.stage{width:2400px;height:1350px}
+  .wrap{position:absolute;inset:0;padding:100px 140px;display:flex;flex-direction:column}
+  .ey{font-size:26px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:96px;font-weight:700;color:var(--deep);margin:14px 0 34px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:28px;color:var(--sub)}</style></head><body><div class="stage"><div class="grid"></div><div class="wrap">
+     <div class="ey mono">// Instruments</div>
+     <div class="h disp">One engine. Four holds.</div>
+     <div style="display:grid;grid-template-columns:200px 1fr 1.7fr;gap:28px;align-items:baseline;padding:38px 0;border-top:1px solid var(--line)">
+  <div class="mono" style="font-size:26px;letter-spacing:.1em;color:var(--accent)">01 · ENROLL</div>
+  <div class="disp" style="font-size:46px;font-weight:600">Dividend Program</div>
+  <div style="font-size:28px;color:var(--sub);line-height:1.45">Enroll VAULT, receive sVAULT, compound every epoch. Redemption 1:1, immediate.</div></div>
+     <div style="display:grid;grid-template-columns:200px 1fr 1.7fr;gap:28px;align-items:baseline;padding:38px 0;border-top:1px solid var(--line)">
+  <div class="mono" style="font-size:26px;letter-spacing:.1em;color:var(--accent)">02 · BOND</div>
+  <div class="disp" style="font-size:46px;font-weight:600">Equity Bond Desk</div>
+  <div style="font-size:28px;color:var(--sub);line-height:1.45">Subscribe USDG for discounted VAULT notes, floored at NAV. Every sale grows backing.</div></div>
+     <div style="display:grid;grid-template-columns:200px 1fr 1.7fr;gap:28px;align-items:baseline;padding:38px 0;border-top:1px solid var(--line)">
+  <div class="mono" style="font-size:26px;letter-spacing:.1em;color:var(--accent)">03 · LOOP</div>
+  <div class="disp" style="font-size:46px;font-weight:600">Loopback Credit</div>
+  <div style="font-size:28px;color:var(--sub);line-height:1.45">Borrow USDG against sVAULT, buy & enroll in one tx. Leverage the dividend.</div></div>
+     <div class="foot mono"><span>◆ NAV-backed · Robinhood Chain</span><span style="color:var(--accent)">vaultcapitalrh.xyz</span></div>
+   </div></div></body></html>

@@ -80,6 +80,8 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
 .tag{display:inline-flex;align-items:center;gap:9px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:1px solid var(--line2);border-radius:0;padding:8px 15px}
 .tag .d{width:6px;height:6px;border-radius:0;background:var(--accent);animation:bl 1.4s steps(1) infinite}
 @keyframes bl{50%{opacity:.15}}
+.xbtn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line2);color:var(--ink);transition:.14s}
+.xbtn:hover{background:var(--accent);color:var(--cream);border-color:var(--accent)}
 </style></head><body>
 
 <header><div class="wrap"><div class="hrow">
@@ -94,6 +96,7 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
   </nav>
   <div class="right">
     <a class="ca" id="caBar" href="#"><span class="mut">CA</span> <span id="caText"></span></a>
+    <a class="xbtn" href="https://x.com/VaultCapitalRH" target="_blank" rel="noopener" aria-label="Vault Capital on X"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
     <button class="btn connected" id="connectBtn">Connect account</button>
   </div>
 </div></div></header>

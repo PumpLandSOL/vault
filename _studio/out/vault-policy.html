@@ -1,0 +1,39 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
+:root{--bg:#f3f0e7;--ink:#14251c;--sub:rgba(20,37,28,.6);--mut:rgba(20,37,28,.36);--line:rgba(20,37,28,.15);--line2:rgba(20,37,28,.3);--accent:#0f6b4f;--deep:#0c5a41;--cream:#f3f0e7;--creamsub:rgba(243,240,231,.7);--disp:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{font-family:var(--mono);color:var(--ink);background:var(--bg)}
+.stage{position:relative;overflow:hidden;background:var(--bg)}
+.grid{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,37,28,.04) 1px,transparent 1px),linear-gradient(0deg,rgba(20,37,28,.04) 1px,transparent 1px);background-size:60px 60px;-webkit-mask:radial-gradient(130% 90% at 50% 0%,#000,transparent 82%)}
+.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:-.03em}
+.mono{font-family:var(--mono)}
+.crest{border:2px solid var(--deep);background:var(--deep);color:var(--cream);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:800}
+.o{color:var(--bg);-webkit-text-stroke-color:var(--deep)}
+
+.stage{width:2400px;height:1350px}
+  .wrap{position:absolute;inset:0;padding:110px 140px;display:flex;gap:90px;align-items:center}
+  .h{font-size:104px;font-weight:700;color:var(--deep);line-height:1.02;margin-bottom:34px}
+  .s{font-size:34px;color:var(--sub);line-height:1.55}
+  .form{margin-top:44px;background:var(--deep);color:var(--cream);border-left:5px solid var(--accent);padding:28px 32px;font-size:30px;font-family:var(--mono)}
+  .panel{flex:1;border:1px solid var(--line2);background:#faf8f1;padding:44px}
+  .pl{font-size:22px;letter-spacing:.2em;color:var(--mut);text-transform:uppercase}</style></head><body><div class="stage"><div class="grid"></div><div class="wrap">
+     <div style="flex:1.05">
+       <div class="mono" style="font-size:26px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase">// Emissions Policy</div>
+       <div class="h disp">You earn only<br>what's earned.</div>
+       <div class="s">Dividends scale with the premium the market pays over NAV. Zero at the floor, full at a 1.75× premium. Immutable at deployment — no admin, ever.</div>
+       <div class="form">rate = R_MAX × clamp((P−1)/(K−1), 0, 1)</div>
+     </div>
+     <div class="panel">
+       <div class="pl mono">The Curve</div>
+       <svg width="720" height="520" viewBox="0 0 720 520" style="margin-top:24px">
+         <line x1="60" y1="60" x2="60" y2="440" stroke="rgba(20,37,28,.2)" stroke-width="2"/>
+         <line x1="60" y1="440" x2="700" y2="440" stroke="rgba(20,37,28,.2)" stroke-width="2"/>
+         <path d="M60 440 L360 150 L700 150" fill="none" stroke="#0f6b4f" stroke-width="6"/>
+         <path d="M60 440 L360 150 L700 150 L700 440 Z" fill="rgba(15,107,79,.14)"/>
+         <line x1="360" y1="60" x2="360" y2="440" stroke="rgba(20,37,28,.28)" stroke-width="2" stroke-dasharray="6 7"/>
+         <circle cx="700" cy="150" r="11" fill="#fff" stroke="#0f6b4f" stroke-width="4"/>
+         <text x="60" y="478" font-family="JetBrains Mono" font-size="22" fill="rgba(20,37,28,.5)">NAV 1×</text>
+         <text x="330" y="478" font-family="JetBrains Mono" font-size="22" fill="rgba(20,37,28,.5)">K 1.75×</text>
+       </svg>
+     </div>
+   </div></div></body></html>
