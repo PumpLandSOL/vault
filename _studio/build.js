@@ -160,5 +160,34 @@ assets['vault-vs-netnet'] = page(2400, 1350, `
      <div class="foot mono"><span>◆ Not affiliated with NetNet Capital</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
    </div>`);
 
+// 8) THE FLOOR 2400x1350 — only goes up
+function stepPath(w, h) { let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647; let d = '', y = h * 0.82; const n = 26; for (let i = 0; i <= n; i++) { const x = i / n * w; if (i && rnd() > 0.55) y -= (h * 0.5) * (0.05 + rnd() * 0.16); y = Math.max(h * 0.14, y); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; } return d; }
+assets['vault-floor'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:90px 130px;display:flex;flex-direction:column}
+  .ey{font-size:24px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:104px;font-weight:700;color:var(--deep);line-height:.98;margin:12px 0 6px}
+  .h .u{color:var(--bg);-webkit-text-stroke:2px var(--deep)}
+  .s{font-size:30px;color:var(--sub);max-width:1100px;line-height:1.5;margin-top:14px}
+  .stats{display:flex;gap:0;border:1px solid var(--line2);margin-top:auto}
+  .st{flex:1;padding:34px 36px}.st+.st{border-left:1px solid var(--line)}
+  .st .v{font-family:var(--mono);font-size:52px;font-weight:700;color:var(--deep)}
+  .st .l{font-size:22px;color:var(--sub);margin-top:8px}`,
+  `<div class="wrap">
+     <div class="ey mono">// Proof of backing</div>
+     <div class="h disp">The floor <span class="u">only</span> goes up.</div>
+     <div class="s">High-water NAV. Every bond and every buy grows the treasury behind $VAULT — and the floor ratchets up with it. Drawdowns to date: zero.</div>
+     <svg viewBox="0 0 2000 360" style="width:100%;height:360px;margin:34px 0">
+       <defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f6b4f" stop-opacity=".22"/><stop offset="1" stop-color="#0f6b4f" stop-opacity="0"/></linearGradient></defs>
+       <path d="${stepPath(2000, 360)} L2000 360 L0 360 Z" fill="url(#fg)"/>
+       <path d="${stepPath(2000, 360)}" fill="none" stroke="#0f6b4f" stroke-width="5" stroke-linejoin="round"/>
+     </svg>
+     <div class="stats">
+       <div class="st"><div class="v">0</div><div class="l">Drawdowns, ever</div></div>
+       <div class="st"><div class="v">1:1</div><div class="l">Redeemable, any hour</div></div>
+       <div class="st"><div class="v">≥1 USDG</div><div class="l">Backing per VAULT</div></div>
+       <div class="st"><div class="v" style="color:var(--accent)">vaultcapitalrh.xyz</div><div class="l">$VAULT · Robinhood Chain</div></div>
+     </div>
+   </div>`);
+
 for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
 console.log('done:', Object.keys(assets).length);

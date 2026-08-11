@@ -157,6 +157,19 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
     </div>
   </div>
 
+  <div class="panel" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div><div class="ptitle">The Floor</div><div class="psub">high-water NAV. It ratchets up as bonds and buys grow the treasury — and it has never fallen.</div></div>
+      <div style="text-align:right"><div class="mono" style="font-size:12px;color:var(--mut);letter-spacing:.14em">FLOOR · NEVER FALLEN</div><div class="mono" id="fFloor" style="font-size:30px;font-weight:700;color:var(--accent)">—</div></div>
+    </div>
+    <canvas id="floorC" style="width:100%;height:190px;display:block;margin-top:16px"></canvas>
+    <div class="grid g4" style="margin-top:16px">
+      <div class="stat"><div class="l">Times raised</div><div class="v" id="fRaises">—</div><div class="s">the floor only goes up</div></div>
+      <div class="stat"><div class="l">Backing added</div><div class="v" id="fAdded">—</div><div class="s">into the treasury</div></div>
+      <div class="stat"><div class="l">Last raise</div><div class="v" id="fSince">—</div><div class="s">ago</div></div>
+      <div class="stat"><div class="l">Drawdowns</div><div class="v" style="color:var(--accent)">0</div><div class="s">the floor has never fallen</div></div>
+    </div>
+  </div>
   <div class="grid g2" style="margin-top:16px">
     <div class="panel" id="lbBox" style="display:none"><div class="ptitle" style="font-size:19px">Register of Shareholders</div><div class="rows" id="lbRows"></div></div>
     <div class="panel"><div class="ptitle" style="font-size:19px">The Ticker Tape</div><div class="psub">every action on the fund, live.</div><div class="rows" id="tapeRows"><div class="psub">Quiet on the desk.</div></div></div>

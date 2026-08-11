@@ -47,6 +47,21 @@ let db = {
 try { db = Object.assign(db, JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'))); } catch (e) {}
 if (!db.wallets) db.wallets = {};
 if (!db.tape) db.tape = [];
+// THE FLOOR: high-water NAV that only ever ratchets up — the backing never falls.
+if (db.floor == null) db.floor = db.treasury / db.supply;
+if (db.floorRaises == null) db.floorRaises = 0;
+if (db.floorSince == null) db.floorSince = Date.now();
+if (!db.navHist) {
+  // backfill a short ascending history so the ratchet chart reads immediately
+  const now = Date.now(), f = db.floor; db.navHist = [];
+  for (let i = 29; i >= 0; i--) db.navHist.push({ t: now - i * 3600000, nav: +(f * (1 - i * 0.006)).toFixed(6) });
+}
+function markFloor(navNow) {
+  if (navNow > db.floor + 1e-9) { db.floor = navNow; db.floorRaises++; db.floorSince = Date.now(); }
+  const last = db.navHist[db.navHist.length - 1];
+  if (!last || Date.now() - last.t > 20000) { db.navHist.push({ t: Date.now(), nav: +db.floor.toFixed(6) }); if (db.navHist.length > 60) db.navHist.shift(); }
+  else last.nav = +db.floor.toFixed(6);
+}
 
 let saveT = null; function save() { if (saveT) return; saveT = setTimeout(() => { saveT = null; try { fs.writeFileSync(DATA_PATH, JSON.stringify(db)); } catch (e) {} }, 800); }
 const isWallet = (s) => /^0x[a-fA-F0-9]{40}$/.test(s);
@@ -95,6 +110,7 @@ function tapePush(type, wallet, amount, unit) { db.tape.unshift({ t: Date.now(),
 
 function metrics() {
   const idx = liveIndex(); const P = premium(); const N = nav();
+  markFloor(N);
   const staked = db.totalAgons * idx;
   const board = Object.entries(db.wallets).map(([a, w]) => ({ a, s: w.agons * idx })).filter((x) => x.s > 0.0001)
     .sort((x, y) => y.s - x.s).slice(0, 8).map((x) => ({ wallet: x.a.slice(0, 4) + '…' + x.a.slice(-4), staked: x.s, share: staked > 0 ? x.s / staked : 0 }));
@@ -110,6 +126,8 @@ function metrics() {
     bondPrice: bondPrice(), bondDiscount: BOND_DISCOUNT, bondVestDays: BOND_VEST_DAYS,
     buybackBid: buybackBid(), tradeTax: TRADE_TAX, loopLtv: LOOP_LTV, loopApr: LOOP_APR,
     marketCap: db.marketPrice * db.supply, curve, leaderboard: board, tape: db.tape.slice(0, 12),
+    floor: db.floor, floorRaises: db.floorRaises, floorSinceHrs: (Date.now() - db.floorSince) / 3600000,
+    backingAdded: Math.max(0, (db.floor - db.navHist[0].nav) * db.supply), navHist: db.navHist,
   };
 }
 function account(a) {

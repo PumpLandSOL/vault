@@ -56,6 +56,12 @@
     $('mEpochRate').textContent = pctf(M.epochRate) + ' / epoch';
     $('mBuyback').textContent = usd(M.buybackBid);
     drawCurve();
+    // THE FLOOR panel
+    $('fFloor').textContent = usd(M.floor);
+    $('fRaises').textContent = n0(M.floorRaises);
+    $('fAdded').textContent = usd(M.backingAdded);
+    $('fSince').textContent = M.floorSinceHrs < 1 ? Math.round(M.floorSinceHrs * 60) + 'm' : M.floorSinceHrs < 48 ? M.floorSinceHrs.toFixed(1) + 'h' : Math.round(M.floorSinceHrs / 24) + 'd';
+    drawFloor();
     // leaderboard
     if (M.leaderboard && M.leaderboard.length) { $('lbBox').style.display = 'block'; $('lbRows').innerHTML = M.leaderboard.map((b, i) => `<div class="row"><span>${i + 1}. <b class="cd">${b.wallet}</b></span><span><b class="gold">${tok(b.staked)} sVAULT</b> · ${pctf(b.share)}</span></div>`).join(''); }
     // tape
@@ -89,6 +95,30 @@
     ctx.fillText('NAV (1×)', X(1), h - pad + 34); ctx.fillText('K = ' + M.k + '×', X(M.k), h - pad + 34);
   }
 
+  // rising-floor step chart — monotonic, only-up
+  function drawFloor() {
+    const c = $('floorC'); if (!c || !M || !M.navHist || !M.navHist.length) return; const ctx = c.getContext('2d');
+    const w = c.width = c.clientWidth * 2, h = c.height = c.clientHeight * 2; ctx.clearRect(0, 0, w, h);
+    const pad = 20 * 2; const hist = M.navHist; const navs = hist.map((p) => p.nav);
+    const lo = Math.min(...navs) * 0.999, hi = Math.max(M.floor, ...navs) * 1.001;
+    const X = (i) => pad + i / (hist.length - 1) * (w - pad * 1.6);
+    const Y = (v) => h - pad - (v - lo) / (hi - lo || 1) * (h - pad * 2);
+    ctx.strokeStyle = 'rgba(20,37,28,.09)'; ctx.lineWidth = 2;
+    for (let i = 0; i <= 3; i++) { const yy = pad + i / 3 * (h - pad * 2); ctx.beginPath(); ctx.moveTo(pad, yy); ctx.lineTo(w - pad * 0.6, yy); ctx.stroke(); }
+    // area under step
+    ctx.beginPath(); ctx.moveTo(X(0), Y(navs[0]));
+    for (let i = 1; i < hist.length; i++) { ctx.lineTo(X(i), Y(navs[i - 1])); ctx.lineTo(X(i), Y(navs[i])); }
+    ctx.lineTo(X(hist.length - 1), h - pad); ctx.lineTo(X(0), h - pad); ctx.closePath();
+    const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(15,107,79,.22)'); g.addColorStop(1, 'rgba(15,107,79,0)'); ctx.fillStyle = g; ctx.fill();
+    // step line
+    ctx.beginPath(); ctx.moveTo(X(0), Y(navs[0]));
+    for (let i = 1; i < hist.length; i++) { ctx.lineTo(X(i), Y(navs[i - 1])); ctx.lineTo(X(i), Y(navs[i])); }
+    ctx.strokeStyle = '#0f6b4f'; ctx.lineWidth = 3.5; ctx.lineJoin = 'round'; ctx.stroke();
+    // head dot
+    const lx = X(hist.length - 1), ly = Y(navs[navs.length - 1]);
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#0f6b4f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(lx, ly, 8, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#0f6b4f'; ctx.beginPath(); ctx.arc(lx, ly, 4, 0, 7); ctx.fill();
+  }
   function renderAccount() {
     if (!A || !isW(wallet)) { ['aUsdg', 'aVault', 'aStaked', 'aNext', 'aLoan'].forEach((id) => { const e = $(id); if (e) e.textContent = '—'; }); renderBonds(); return; }
     $('aUsdg').textContent = tok(A.usdg) + ' USDG';
@@ -158,5 +188,5 @@
   loadMetrics(); if (wallet) loadAccount();
   setInterval(loadMetrics, 6000); setInterval(() => { if (wallet) loadAccount(); }, 6000);
   setInterval(tick, 100); tick();
-  window.addEventListener('resize', drawCurve);
+  window.addEventListener('resize', () => { drawCurve(); drawFloor(); });
 })();
