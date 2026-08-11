@@ -13,7 +13,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative}
+body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
 /* faint grid texture */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   background:linear-gradient(90deg,rgba(20,37,28,.03) 1px,transparent 1px),linear-gradient(0deg,rgba(20,37,28,.03) 1px,transparent 1px);
@@ -38,7 +38,7 @@ nav.tabs{display:flex;gap:0;margin-left:12px}
 .btn.big{padding:16px 30px;font-size:12.5px}
 section{padding:36px 0}
 .hide{display:none}
-h1{font-family:var(--disp);font-weight:700;font-size:52px;line-height:.98;letter-spacing:-.02em;text-transform:uppercase}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(32px,6.4vw,52px);line-height:.98;letter-spacing:-.02em;text-transform:uppercase}
 .eyebrow{font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
 .lede{color:var(--sub);font-size:14.5px;line-height:1.7;max-width:620px;margin-top:16px}
 /* panels */
@@ -80,8 +80,32 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
 .tag{display:inline-flex;align-items:center;gap:9px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:1px solid var(--line2);border-radius:0;padding:8px 15px}
 .tag .d{width:6px;height:6px;border-radius:0;background:var(--accent);animation:bl 1.4s steps(1) infinite}
 @keyframes bl{50%{opacity:.15}}
-.xbtn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line2);color:var(--ink);transition:.14s}
+.xbtn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line2);color:var(--ink);transition:.14s;flex:none}
 .xbtn:hover{background:var(--accent);color:var(--cream);border-color:var(--accent)}
+/* ── mobile ── */
+@media(max-width:680px){
+  header{position:static}
+  .hrow{height:auto;min-height:56px;flex-wrap:wrap;padding:10px 0;gap:8px}
+  .logo{font-size:14px}
+  nav.tabs{order:3;flex-basis:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;flex:none}
+  .right{margin-left:auto}
+  .ca{display:none!important}
+  section{padding:22px 0}
+  .lede{font-size:13px}
+  .g2{gap:12px}
+  .stat{padding:15px}
+  .stat .v{font-size:21px}.stat .v.big{font-size:26px}
+  .stat .l{letter-spacing:.1em}
+  .panel{padding:18px}
+  .tag{display:inline-block;max-width:100%;white-space:normal;line-height:1.9;font-size:9px;letter-spacing:.08em;padding:8px 12px}
+  .tag .d{display:inline-block;vertical-align:middle;margin-right:6px}
+  .field input{font-size:17px;min-width:0}
+  .seg button{padding:9px 14px}
+  .grid>*{min-width:0}
+  .stat .s{overflow-wrap:anywhere}
+}
+@media(max-width:420px){ .g4{grid-template-columns:1fr} }
 </style></head><body>
 
 <header><div class="wrap"><div class="hrow">
