@@ -264,5 +264,40 @@ assets['vault-reserve'] = page(2400, 1350, `
      <div class="foot mono"><span>◆ Reserve backing on-chain · not affiliated with Nest</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
    </div>`);
 
+// 11) THE CREDIT DESK 2400x1350 — borrow against your bag
+const step3 = (n,t,d) => `<div style="flex:1;border:1px solid var(--line2);padding:36px 34px;background:#fff">
+  <div class="mono" style="font-size:30px;color:var(--deep);font-weight:700">${n}</div>
+  <div style="font-size:38px;font-weight:700;margin:14px 0 10px;color:var(--ink);font-family:var(--disp)">${t}</div>
+  <div style="font-size:24px;color:var(--sub);line-height:1.45">${d}</div></div>`;
+assets['vault-credit'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:80px 120px;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:96px;font-weight:700;color:var(--deep);line-height:.98;margin:12px 0 8px}
+  .h .u{color:var(--bg);-webkit-text-stroke:2px var(--deep)}
+  .s{font-size:30px;color:var(--sub);max-width:1500px;line-height:1.5}
+  .steps{display:flex;gap:22px;margin:44px 0}
+  .stat{display:flex;gap:0;border:1px solid var(--line2)}
+  .sc{flex:1;padding:30px 34px}.sc+.sc{border-left:1px solid var(--line)}
+  .sc .v{font-family:var(--mono);font-size:48px;font-weight:700;color:var(--deep)}
+  .sc .l{font-size:22px;color:var(--sub);margin-top:6px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:25px;color:var(--sub);padding-top:24px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The Credit Desk · liquidity without selling</div>
+     <div class="h disp">Borrow against your bag. <span class="u">Don't sell it.</span></div>
+     <div class="s">Enroll $VAULT, then borrow USDG against your sVAULT — and your stake keeps compounding the whole time. Get liquidity today without giving up the dividend.</div>
+     <div class="steps">
+       ${step3('01','Enroll','Your $VAULT becomes sVAULT — the collateral that keeps earning.')}
+       ${step3('02','Borrow','Draw up to 50% of its value in USDG, paid from the treasury.')}
+       ${step3('03','Keep earning','The dividend never stops. Repay anytime to unlock.')}
+     </div>
+     <div class="stat">
+       <div class="sc"><div class="v">50%</div><div class="l">max loan-to-value</div></div>
+       <div class="sc"><div class="v">250,000%</div><div class="l">stake still earning ⚡</div></div>
+       <div class="sc"><div class="v">anytime</div><div class="l">repay &amp; unlock</div></div>
+       <div class="sc"><div class="v" style="color:var(--accent)">no sell</div><div class="l">keep every token</div></div>
+     </div>
+     <div class="foot mono"><span>◆ Manage your LTV below the 75% liquidation line</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
+   </div>`);
+
 for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
 console.log('done:', Object.keys(assets).length);
