@@ -3,7 +3,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
   let M = null, A = null, wallet = localStorage.getItem('vault_w') || '';
-  let anchor = null, stakeMode = 'enroll', boostEndAt = 0;
+  let anchor = null, stakeMode = 'enroll', boostEndAt = 0, CFG = null, chainBal = null;
 
   const isW = (s) => /^0x[a-fA-F0-9]{40}$/.test(s);
   const n0 = (n) => Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -27,7 +27,7 @@
   // wallet
   const short = (a) => a.slice(0, 6) + '…' + a.slice(-4);
   function renderWallet() { const b = $('connectBtn'); if (wallet) { b.textContent = short(wallet); b.classList.add('connected'); } else { b.textContent = 'Connect account'; b.classList.remove('connected'); } }
-  function setWallet(a) { if (a && isW(a)) { wallet = a; localStorage.setItem('vault_w', a); renderWallet(); loadAccount(); } else { wallet = ''; A = null; localStorage.removeItem('vault_w'); renderWallet(); renderAccount(); } }
+  function setWallet(a) { if (a && isW(a)) { wallet = a; localStorage.setItem('vault_w', a); renderWallet(); loadAccount(); loadChainBalance(); } else { wallet = ''; A = null; chainBal = null; localStorage.removeItem('vault_w'); renderWallet(); renderAccount(); } }
   $('connectBtn').onclick = async () => {
     if (wallet) { setWallet(''); toast('Account disconnected'); return; }
     const eth = window.ethereum; if (!eth) return toast('No EVM wallet found — install MetaMask or Rabby');
@@ -39,6 +39,35 @@
   // fetch
   async function loadMetrics() { try { M = await (await fetch('/api/metrics')).json(); reanchor(); renderMetrics(); } catch (e) {} }
   async function loadAccount() { if (!isW(wallet)) return; try { A = await (await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ wallet }) })).json(); reanchor(); renderAccount(); } catch (e) {} }
+  async function loadConfig() { try { CFG = await (await fetch('/api/config')).json(); if (CFG && CFG.live) { if ($('buyBtn')) $('buyBtn').textContent = 'Buy on DEX ↗'; const bp = document.querySelector('#buy .psub'); if (bp) bp.textContent = 'Once live, $VAULT trades on the open market. Buy on the DEX, then enroll it here to earn the dividend.'; } } catch (e) {} }
+  // real on-chain $VAULT balance, read server-side from the Robinhood Chain RPC
+  async function loadChainBalance() {
+    if (!isW(wallet)) { chainBal = null; return; }
+    try { const r = await (await fetch('/api/balance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ wallet }) })).json(); chainBal = (r && r.error) ? null : r.balance; }
+    catch (e) { chainBal = null; }
+    renderAccount();
+  }
+  // make sure the wallet is on Robinhood Chain before an on-chain transfer
+  async function ensureChain() {
+    if (!CFG || !CFG.chainId) return; const idHex = '0x' + (+CFG.chainId).toString(16);
+    const cur = await window.ethereum.request({ method: 'eth_chainId' }); if (cur === idHex) return;
+    try { await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: idHex }] }); }
+    catch (e) {
+      if (e && (e.code === 4902 || String(e.message).toLowerCase().includes('unrecognized') || String(e.message).includes('4902')))
+        await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId: idHex, chainName: 'Robinhood Chain', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: [CFG.rpcUrl], blockExplorerUrls: ['https://robinhoodchain.blockscout.com'] }] });
+      else throw new Error('switch your wallet to Robinhood Chain to enroll');
+    }
+  }
+  // ERC-20 transfer of $VAULT to the treasury; resolves with the confirmed tx hash
+  async function depositVault(amount) {
+    await ensureChain();
+    const wei = BigInt(Math.floor(amount * 1e6)) * (10n ** 12n);   // 18-decimal, avoid float overflow
+    const data = '0xa9059cbb' + CFG.treasury.slice(2).toLowerCase().padStart(64, '0') + wei.toString(16).padStart(64, '0');
+    const txHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [{ from: wallet, to: CFG.mint, data }] });
+    // wait for the receipt (up to ~60s)
+    for (let i = 0; i < 40; i++) { try { const rc = await window.ethereum.request({ method: 'eth_getTransactionReceipt', params: [txHash] }); if (rc && rc.blockNumber) { if (rc.status && rc.status !== '0x1') throw new Error('transfer failed'); return txHash; } } catch (e) { if (String(e.message).includes('failed')) throw e; } await new Promise((r) => setTimeout(r, 1500)); }
+    return txHash;   // submitted; credit optimistically
+  }
   function reanchor() { if (!M) return; anchor = { index: M.index, nextIn: M.nextEpochIn, rate: M.epochRate, epochSec: M.epochSec, t: Date.now(), agons: A && A.staked ? A.staked / A.index : 0, totalStaked: M.totalStaked }; }
   function liveIndex() { if (!anchor) return { index: 1, nextIn: 0 }; let idx = anchor.index; let nextIn = anchor.nextIn - (Date.now() - anchor.t) / 1000; let g = 0; while (nextIn < 0 && g++ < 50) { idx *= (1 + anchor.rate); nextIn += anchor.epochSec; } const frac = 1 - nextIn / anchor.epochSec; return { index: idx * (1 + anchor.rate * frac), nextIn }; }
 
@@ -142,8 +171,10 @@
   }
   function renderAccount() {
     if (!A || !isW(wallet)) { ['aUsdg', 'aVault', 'aStaked', 'aNext', 'aLoan'].forEach((id) => { const e = $(id); if (e) e.textContent = '—'; }); renderBonds(); return; }
-    $('aUsdg').textContent = tok(A.usdg) + ' USDG';
-    $('aVault').textContent = tok(A.vault) + ' VAULT';
+    const live = CFG && CFG.live;
+    // when the token is live, show the real on-chain wallet balance; otherwise the ledger balance
+    $('aVault').textContent = live ? (chainBal == null ? '…' : tok(chainBal) + ' VAULT') : tok(A.vault) + ' VAULT';
+    if ($('aUsdg')) { const lbl = $('aUsdg').previousElementSibling; if (live) { $('aUsdg').textContent = A.pendingOut > 0 ? tok(A.pendingOut) + ' VAULT' : '—'; if (lbl) lbl.textContent = 'Pending payout'; } else { $('aUsdg').textContent = tok(A.usdg) + ' USDG'; if (lbl) lbl.textContent = 'USDG balance'; } }
     $('aStaked').textContent = tok(A.staked) + ' sVAULT';
     $('aNext').textContent = '+' + (A.staked * (M ? M.epochRate : 0)).toFixed(3) + ' VAULT';
     if ($('aLoan')) $('aLoan').textContent = tok(A.loan) + ' USDG';
@@ -158,14 +189,44 @@
   }
 
   // actions
-  $('buyBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('buyAmt').value); if (!(amt > 0)) return toast('enter USDG'); const r = await post('/api/buy', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('buyAmt').value = ''; toast('Purchased ' + tok(amt / M.marketPrice) + ' VAULT'); loadMetrics(); };
+  $('buyBtn').onclick = async () => {
+    // once live, VAULT is bought on the DEX — send users to the real market
+    if (CFG && CFG.live && CFG.mint) { window.open('https://dexscreener.com/robinhood/' + CFG.mint, '_blank'); return; }
+    if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('buyAmt').value); if (!(amt > 0)) return toast('enter USDG');
+    const r = await post('/api/buy', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('buyAmt').value = ''; toast('Purchased ' + tok(amt / M.marketPrice) + ' VAULT'); loadMetrics();
+  };
   $('buyAmt').addEventListener('input', calcBuy);
   function calcBuy() { if (!M) return; const amt = parseFloat($('buyAmt').value) || 0; $('buyRate').textContent = '1 VAULT = ' + pxN(M.marketPrice) + ' USDG'; $('buyOut').textContent = tok(amt * (1 - M.tradeTax) / M.marketPrice) + ' VAULT'; $('buyTax').textContent = usd(amt * M.tradeTax) + ' tax (' + pctf(M.tradeTax) + ')'; }
 
   $('segEnroll').onclick = () => { stakeMode = 'enroll'; $('segEnroll').classList.add('on'); $('segRedeem').classList.remove('on'); $('stakeBtn').textContent = 'Enroll'; };
   $('segRedeem').onclick = () => { stakeMode = 'redeem'; $('segRedeem').classList.add('on'); $('segEnroll').classList.remove('on'); $('stakeBtn').textContent = 'Redeem'; };
-  $('stakeMax').onclick = () => { if (!A) return; $('stakeAmt').value = (stakeMode === 'enroll' ? A.vault : A.staked).toFixed(2); };
-  $('stakeBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('stakeAmt').value); if (!(amt > 0)) return toast('enter an amount'); const r = await post('/api/' + (stakeMode === 'enroll' ? 'stake' : 'redeem'), { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('stakeAmt').value = ''; toast((stakeMode === 'enroll' ? 'Enrolled ' : 'Redeemed ') + tok(amt) + ' VAULT'); loadMetrics(); };
+  $('stakeMax').onclick = () => { if (!A) return; const live = CFG && CFG.live; const max = stakeMode === 'enroll' ? (live ? (chainBal || 0) : A.vault) : A.staked; $('stakeAmt').value = max > 0 ? (Math.floor(max * 100) / 100).toString() : '0'; };
+  $('stakeBtn').onclick = async () => {
+    if (!isW(wallet)) return toast('connect first');
+    const amt = parseFloat($('stakeAmt').value); if (!(amt > 0)) return toast('enter an amount');
+    const live = CFG && CFG.live;
+    if (stakeMode === 'enroll') {
+      if (live) {
+        if (chainBal != null && amt > chainBal + 1e-9) return toast('amount exceeds your $VAULT balance');
+        if (!window.ethereum) return toast('no EVM wallet found');
+        const btn = $('stakeBtn'); const old = btn.textContent; btn.textContent = 'Confirm in wallet…'; btn.disabled = true;
+        try {
+          const txHash = await depositVault(amt);
+          toast('Deposit sent — crediting sVAULT…');
+          const r = await post('/api/stake', { wallet, amount: amt, txHash });
+          if (r.error) { btn.textContent = old; btn.disabled = false; return toast(r.error); }
+          A = r; reanchor(); renderAccount(); $('stakeAmt').value = ''; toast('Enrolled ' + tok(amt) + ' VAULT (3,3)'); loadMetrics(); loadChainBalance();
+        } catch (e) { toast(e && e.code === 4001 ? 'transaction rejected' : (e.message || 'enroll failed')); }
+        btn.textContent = old; btn.disabled = false; return;
+      }
+      const r = await post('/api/stake', { wallet, amount: amt });   // pre-launch ledger
+      if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('stakeAmt').value = ''; toast('Enrolled ' + tok(amt) + ' VAULT'); loadMetrics(); return;
+    }
+    // redeem
+    const r = await post('/api/redeem', { wallet, amount: amt });
+    if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('stakeAmt').value = '';
+    toast(r.queued ? 'Redemption queued — ' + tok(r.queued) + ' VAULT paid from treasury' : 'Redeemed ' + tok(amt) + ' VAULT'); loadMetrics();
+  };
 
   $('bondBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('bondAmt').value); if (!(amt > 0)) return toast('enter USDG'); const r = await post('/api/bond', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; renderAccount(); $('bondAmt').value = ''; toast('Bonded — ' + tok(r.payout) + ' VAULT vesting'); loadMetrics(); };
   $('bondAmt').addEventListener('input', calcBond);
@@ -207,8 +268,8 @@
     if (A && anchor.agons) $('aStaked').textContent = tok(anchor.agons * li.index) + ' sVAULT';
   }
 
-  loadMetrics(); if (wallet) loadAccount();
-  setInterval(loadMetrics, 6000); setInterval(() => { if (wallet) loadAccount(); }, 6000);
+  loadConfig().then(() => { loadMetrics(); if (wallet) { loadAccount(); loadChainBalance(); } });
+  setInterval(loadMetrics, 6000); setInterval(() => { if (wallet) { loadAccount(); loadChainBalance(); } }, 12000);
   setInterval(tick, 100); tick();
   window.addEventListener('resize', () => { drawCurve(); drawFloor(); });
 })();

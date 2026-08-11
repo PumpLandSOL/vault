@@ -25,6 +25,13 @@ const VAULT_MINT = process.env.VAULT_MINT || '0x5Af29B5fe51d1e652Dbd6d760d6c242a
 // staking custody: enrolled $VAULT is held here (key kept offline by the operator — never on this server).
 // Inert until VAULT_MINT is set; once launched, enrolling requires a real on-chain transfer to this wallet.
 const TREASURY_WALLET = process.env.TREASURY_WALLET || '0xE662Beb1903884213720F35aeA92C75417b26442';
+// Robinhood Chain RPC — read real on-chain $VAULT balances so the app shows the truth.
+const RPC_URL = process.env.RPC_URL || 'https://rpc.mainnet.chain.robinhood.com';
+const CHAIN_ID = +(process.env.CHAIN_ID || 4663);
+async function rpc(method, params) {
+  const r = await fetch(RPC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
+  const j = await r.json(); if (j.error) throw new Error(j.error.message); return j.result;
+}
 
 // ---- immutable policy (mirrors the source's fixed-at-deploy constants) ----
 const EPOCH_SEC = +(process.env.EPOCH_SEC || 28800);       // 8-hour epochs, 3 distributions/day
@@ -69,6 +76,7 @@ let db = {
 try { db = Object.assign(db, JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'))); } catch (e) {}
 if (!db.wallets) db.wallets = {};
 if (!db.tape) db.tape = [];
+if (!db.withdrawals) db.withdrawals = [];   // redeem payouts, settled from the treasury
 // migration: wallets seeded under the old cap get topped up — no perceived staking limit
 for (const w of Object.values(db.wallets)) if (w.seeded && w.usdg <= 250000) w.usdg += SEED_USDG - 250000;
 // THE FLOOR: high-water NAV that only ever ratchets up — the backing never falls.
@@ -195,7 +203,8 @@ function account(a) {
   const bonds = w.bonds.filter((b) => !b.done).map((b) => { const pct = clamp((now - b.start) / (b.end - b.start), 0, 1); return { payout: b.payout, claimable: Math.max(0, b.payout * pct - b.claimed), pct, endsIn: Math.max(0, (b.end - now) / 1000) }; });
   const staked = stakedOf(w, idx);
   const borrowable = Math.max(0, staked * nav() * LOOP_LTV - w.loan);
-  return { wallet: a, usdg: w.usdg, vault: w.vault, staked, index: +idx.toFixed(6), nextReward: staked * epochRate(), bonds, loan: w.loan || 0, borrowable, seeded: !!w.seeded };
+  const pendingOut = db.withdrawals.filter((x) => x.wallet === a && x.status === 'pending').reduce((s, x) => s + x.amount, 0);
+  return { wallet: a, usdg: w.usdg, vault: w.vault, staked, index: +idx.toFixed(6), nextReward: staked * epochRate(), bonds, loan: w.loan || 0, borrowable, pendingOut, seeded: !!w.seeded };
 }
 
 // ---- http ----
@@ -206,7 +215,7 @@ function body(req) { return new Promise((r) => { let b = ''; req.on('data', (c) 
 http.createServer(async (req, res) => {
   const u = req.url.split('?')[0];
   if (u === '/api/metrics') return json(res, 200, metrics());
-  if (u === '/api/config') return json(res, 200, { token: TOKEN, mint: VAULT_MINT, treasury: TREASURY_WALLET, live: !!VAULT_MINT, epochSec: EPOCH_SEC, network: 'robinhood-chain' });
+  if (u === '/api/config') return json(res, 200, { token: TOKEN, mint: VAULT_MINT, treasury: TREASURY_WALLET, live: !!VAULT_MINT, chainId: CHAIN_ID, rpcUrl: RPC_URL, epochSec: EPOCH_SEC, network: 'robinhood-chain' });
 
   if (req.method === 'POST') {
     const d = await body(req);
@@ -215,6 +224,13 @@ http.createServer(async (req, res) => {
     const w = W(a);
 
     if (u === '/api/account') return json(res, 200, account(a));
+
+    // real on-chain $VAULT balance of the connected wallet (read-only)
+    if (u === '/api/balance') {
+      if (!VAULT_MINT) return json(res, 200, { balance: 0 });
+      try { const hex = await rpc('eth_call', [{ to: VAULT_MINT, data: '0x70a08231' + a.slice(2).toLowerCase().padStart(64, '0') }, 'latest']); return json(res, 200, { balance: Number(BigInt(hex)) / 1e18 }); }
+      catch (e) { return json(res, 200, { error: 'rpc unavailable', balance: null }); }
+    }
 
     // Direct Purchase Plan: pay USDG, receive VAULT at market minus the trading tax
     if (u === '/api/buy') {
@@ -246,14 +262,17 @@ http.createServer(async (req, res) => {
       tapePush('enroll', a, amt, 'VAULT'); save();
       return json(res, 200, { ok: true, ...account(a) });
     }
-    // Redeem (unstake): sVAULT -> VAULT, 1:1 and immediate
+    // Redeem (unstake): sVAULT -> VAULT. Pre-launch it's an instant ledger move; once live,
+    // the $VAULT sits in the treasury, so redemption is queued and paid out from the treasury.
     if (u === '/api/redeem') {
       const idx = liveIndex(); const have = stakedOf(w, idx);
       const amt = Math.max(0, Math.min(+d.amount || 0, have));
       if (amt <= 0) return json(res, 200, { error: 'nothing enrolled' });
-      const ag = amt / idx; w.agons = Math.max(0, w.agons - ag); db.totalAgons = Math.max(0, db.totalAgons - ag); w.vault += amt;
+      const ag = amt / idx; w.agons = Math.max(0, w.agons - ag); db.totalAgons = Math.max(0, db.totalAgons - ag);
+      if (VAULT_MINT) { db.withdrawals.push({ wallet: a, amount: +amt.toFixed(6), t: Date.now(), status: 'pending' }); }
+      else { w.vault += amt; }
       tapePush('redeem', a, amt, 'VAULT'); save();
-      return json(res, 200, { ok: true, ...account(a) });
+      return json(res, 200, { ok: true, queued: VAULT_MINT ? +amt.toFixed(6) : 0, ...account(a) });
     }
     // Bond desk: subscribe USDG for VAULT notes at a discount, vesting over BOND_VEST_DAYS
     if (u === '/api/bond') {
