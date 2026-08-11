@@ -189,5 +189,45 @@ assets['vault-floor'] = page(2400, 1350, `
      </div>
    </div>`);
 
+// 9) VS NEST 2400x1350 — APY contrast + feature superiority
+const nrow = (label, nest, vlt) => `<div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;align-items:center;border-top:1px solid var(--line)">
+  <div style="font-size:26px;color:var(--ink);padding:22px 30px">${label}</div>
+  <div style="font-size:24px;color:var(--sub);padding:22px 30px;text-align:center;border-left:1px solid var(--line)">${nest}</div>
+  <div style="font-size:24px;color:var(--cream);font-weight:700;padding:22px 30px;text-align:center;background:var(--deep)">${vlt}</div></div>`;
+assets['vault-vs-nest'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:74px 120px;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .apyrow{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:16px 0 26px;border:1px solid var(--line2)}
+  .apyc{padding:34px 40px}
+  .apyc.n{border-right:1px solid var(--line)}
+  .apyc .l{font-size:24px;letter-spacing:.06em;color:var(--sub);font-weight:600}
+  .apyc.n .v{font-family:var(--mono);font-size:88px;font-weight:700;color:var(--sub);margin-top:6px}
+  .apyc.v{background:var(--deep)}
+  .apyc.v .l{color:var(--cream)}
+  .apyc.v .v{font-family:var(--mono);font-size:88px;font-weight:700;color:var(--cream);margin-top:6px}
+  .apyc.v .sub{font-size:20px;color:#9fe6c6;margin-top:8px}
+  .tbl{border:1px solid var(--line2)}
+  .hd{display:grid;grid-template-columns:1.6fr 1fr 1fr}
+  .hd .c{padding:20px 30px;font-family:var(--disp);font-weight:600;font-size:30px;text-transform:uppercase}
+  .hd .net{text-align:center;color:var(--sub);border-left:1px solid var(--line);font-size:26px}
+  .hd .vlt{text-align:center;background:var(--deep);color:var(--cream)}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:25px;color:var(--sub);padding-top:22px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The math isn't close</div>
+     <div class="apyrow">
+       <div class="apyc n"><div class="l">NEST — sNUSD staking</div><div class="v">6%</div></div>
+       <div class="apyc v"><div class="l">VAULT — sVAULT staking ⚡</div><div class="v">250,000%</div><div class="sub">48-hour boost · 13,598% base</div></div>
+     </div>
+     <div class="tbl">
+       <div class="hd"><div class="c">&nbsp;</div><div class="c net">Nest</div><div class="c vlt">Vault Capital</div></div>
+       ${nrow('Model', 'stablecoin (nUSD)', 'NAV-backed reserve')}
+       ${nrow('NAV floor · redeem 1:1 any hour', 'peg module', '✓ hard floor')}
+       ${nrow('One-click leverage loop', '—', '✓ Loopback')}
+       ${nrow('Rising-floor proof tracker', '—', '✓ never fallen')}
+       ${nrow('All-time high', '$16M', 'unwritten')}
+     </div>
+     <div class="foot mono"><span>◆ Nest sNUSD ~6% real yield · not affiliated</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
+   </div>`);
+
 for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
 console.log('done:', Object.keys(assets).length);
