@@ -21,7 +21,7 @@
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
     if (!t.dataset.view) return;
     document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x === t));
-    ['dash', 'buy', 'enroll', 'bond', 'loop'].forEach((v) => $(v).classList.toggle('hide', v !== t.dataset.view));
+    ['dash', 'buy', 'enroll', 'bond', 'credit', 'loop'].forEach((v) => $(v).classList.toggle('hide', v !== t.dataset.view));
   }));
 
   // wallet
@@ -178,7 +178,7 @@
     $('aStaked').textContent = tok(A.staked) + ' sVAULT';
     $('aNext').textContent = '+' + (A.staked * (M ? M.epochRate : 0)).toFixed(3) + ' VAULT';
     if ($('aLoan')) $('aLoan').textContent = tok(A.loan) + ' USDG';
-    renderBonds(); calcLoop();
+    renderBonds(); calcLoop(); renderCredit();
   }
   function renderBonds() {
     const box = $('yourBonds'); if (!box) return;
@@ -233,6 +233,22 @@
   function calcBond() { if (!M) return; const amt = parseFloat($('bondAmt').value) || 0; $('bondPrice').textContent = pxN(M.bondPrice) + ' USDG'; $('bondOut').textContent = tok(amt / M.bondPrice) + ' VAULT'; $('bondDisc').textContent = pctf(M.bondDiscount) + ' discount · ' + M.bondVestDays + '-day vest'; }
   async function doClaim(autostake) { const r = await post('/api/claim', { wallet, autostake }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); toast(autostake ? 'Claimed & enrolled ' + tok(r.claimed) : 'Claimed ' + tok(r.claimed) + ' VAULT'); }
 
+  // Credit Desk — borrow against sVAULT
+  $('borrowBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('borrowAmt').value); if (!(amt > 0)) return toast('enter a USDG amount'); const r = await post('/api/borrow', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('borrowAmt').value = ''; toast('Borrowed ' + tok(r.borrowed) + ' USDG — paid from treasury'); loadMetrics(); };
+  $('crRepayBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); if (!A || !(A.loan > 0)) return toast('no loan outstanding'); const r = await post('/api/repay', { wallet, amount: A.loan }); if (r.error) return toast(r.error); A = r; renderAccount(); toast('Loan repaid'); loadMetrics(); };
+  function renderCredit() {
+    if (!A) { ['crColl', 'crAvail', 'crLoan', 'crLtv'].forEach((id) => { if ($(id)) $(id).textContent = '—'; }); return; }
+    if ($('crColl')) $('crColl').textContent = usd(A.collateralUsd || 0);
+    if ($('crAvail')) $('crAvail').textContent = usd(A.borrowable || 0);
+    if ($('crLoan')) $('crLoan').textContent = usd(A.loan || 0);
+    if ($('crLtv')) $('crLtv').textContent = pctf(A.currentLtv || 0) + ' / ' + pctf(A.liqLtv || 0.75) + ' liq';
+    if ($('borrowCap')) $('borrowCap').textContent = usd(A.borrowable || 0) + ' available';
+    if ($('borrowApr')) $('borrowApr').textContent = pctf(A.loanApr || 0.12) + ' APR';
+    // health bar: 1 - ltv/liqLtv
+    const hv = A.loan > 0 ? clamp(1 - (A.currentLtv / (A.liqLtv || 0.75)), 0, 1) : 1;
+    const bar = $('crHealth'); if (bar) { bar.style.width = (hv * 100).toFixed(0) + '%'; bar.style.background = hv > 0.5 ? 'linear-gradient(90deg,#3fae86,#0f6b4f)' : hv > 0.2 ? '#d99a2b' : '#c0492f'; }
+    if ($('crHealthL')) $('crHealthL').textContent = A.loan > 0 ? (hv * 100).toFixed(0) + '% headroom · ' + usd(A.loan) + ' borrowed' : 'no loan — full headroom';
+  }
   // Loopback simulator + execution
   $('loopAmt').addEventListener('input', calcLoop);
   $('loopBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('loopAmt').value); if (!(amt > 0)) return toast('enter a borrow amount'); const r = await post('/api/loop', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('loopAmt').value = ''; toast('Looped — borrowed ' + tok(r.borrowed) + ' USDG → ' + tok(r.looped) + ' VAULT enrolled'); loadMetrics(); };

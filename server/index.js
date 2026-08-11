@@ -44,6 +44,7 @@ const BOND_VEST_DAYS = +(process.env.BOND_VEST_DAYS || 2);
 const BUYBACK_SPREAD = 0.015;                              // standing bid at NAV * (1 - 1.5%)
 const LOOP_LTV = +(process.env.LOOP_LTV || 0.5);           // borrow up to 50% of sVAULT value
 const LOOP_APR = +(process.env.LOOP_APR || 0.12);          // 12% APR on borrowed USDG
+const LIQ_LTV = +(process.env.LIQ_LTV || 0.75);            // liquidation threshold (loan / collateral)
 const EPOCHS_YR = 31557600 / EPOCH_SEC;
 // ---- 48-HOUR APY BOOST ---- limited-time inflated dividend; compounds for real while live.
 const BOOST_APY = +(process.env.BOOST_APY || 250000);   // headline boosted APY %
@@ -202,9 +203,13 @@ function account(a) {
   const now = Date.now();
   const bonds = w.bonds.filter((b) => !b.done).map((b) => { const pct = clamp((now - b.start) / (b.end - b.start), 0, 1); return { payout: b.payout, claimable: Math.max(0, b.payout * pct - b.claimed), pct, endsIn: Math.max(0, (b.end - now) / 1000) }; });
   const staked = stakedOf(w, idx);
-  const borrowable = Math.max(0, staked * nav() * LOOP_LTV - w.loan);
+  const collateralUsd = staked * nav();
+  const loan = w.loan || 0;
+  const borrowable = Math.max(0, collateralUsd * LOOP_LTV - loan);
+  const health = loan > 0 ? (collateralUsd * LIQ_LTV) / loan : null;   // >1 = safe, <1 = liquidatable
+  const currentLtv = collateralUsd > 0 ? loan / collateralUsd : 0;
   const pendingOut = db.withdrawals.filter((x) => x.wallet === a && x.status === 'pending').reduce((s, x) => s + x.amount, 0);
-  return { wallet: a, usdg: w.usdg, vault: w.vault, staked, index: +idx.toFixed(6), nextReward: staked * epochRate(), bonds, loan: w.loan || 0, borrowable, pendingOut, seeded: !!w.seeded };
+  return { wallet: a, usdg: w.usdg, vault: w.vault, staked, index: +idx.toFixed(6), nextReward: staked * epochRate(), bonds, loan, borrowable, collateralUsd, health, currentLtv, maxLtv: LOOP_LTV, liqLtv: LIQ_LTV, loanApr: LOOP_APR, pendingOut, seeded: !!w.seeded };
 }
 
 // ---- http ----
@@ -293,6 +298,18 @@ http.createServer(async (req, res) => {
       else w.vault += claimed;
       tapePush(d.autostake ? 'enroll' : 'claim', a, claimed, 'VAULT'); save();
       return json(res, 200, { ok: true, claimed, ...account(a) });
+    }
+    // Credit Desk: borrow USDG against your enrolled sVAULT for liquidity — your stake keeps earning.
+    // The USDG is paid out from the treasury (queued); the loan accrues interest and can be repaid anytime.
+    if (u === '/api/borrow') {
+      const idx = liveIndex(); const staked = stakedOf(w, idx);
+      const capacity = Math.max(0, staked * nav() * LOOP_LTV - (w.loan || 0));
+      const amt = Math.max(0, Math.min(+d.amount || 0, capacity));
+      if (amt <= 0) return json(res, 200, { error: 'no borrow capacity — enroll more $VAULT first' });
+      w.loan = (w.loan || 0) + amt;
+      db.withdrawals.push({ wallet: a, amount: +amt.toFixed(2), t: Date.now(), status: 'pending', kind: 'loan-usdg' });
+      tapePush('borrow', a, amt, 'USDG'); save();
+      return json(res, 200, { ok: true, borrowed: amt, ...account(a) });
     }
     // Loopback (Lombard): borrow USDG against sVAULT, buy VAULT, enroll — one shot
     if (u === '/api/loop') {
