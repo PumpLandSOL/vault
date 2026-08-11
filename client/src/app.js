@@ -3,7 +3,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
   let M = null, A = null, wallet = localStorage.getItem('vault_w') || '';
-  let anchor = null, stakeMode = 'enroll';
+  let anchor = null, stakeMode = 'enroll', boostEndAt = 0;
 
   const isW = (s) => /^0x[a-fA-F0-9]{40}$/.test(s);
   const n0 = (n) => Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -45,6 +45,14 @@
   function renderMetrics() {
     if (!M) return;
     $('mApy').textContent = apyf(M.apy);
+    // 48h APY boost
+    if (M.boost && M.boost.active) {
+      $('boostBanner').style.display = 'flex';
+      $('boostApy').textContent = apyf(M.boost.apy);
+      $('mApy').innerHTML = apyf(M.apy) + ' <span style="font-size:15px;color:var(--accent)">⚡</span>';
+      $('mApy').nextElementSibling.textContent = 'BOOSTED · ends soon · compounds every 8h';
+      boostEndAt = Date.now() + M.boost.endsIn * 1000;
+    } else if ($('boostBanner')) { $('boostBanner').style.display = 'none'; boostEndAt = 0; }
     $('mNav').textContent = usd(M.nav);
     $('mPrice').textContent = usd(M.marketPrice);
     $('mPremium').textContent = M.premium.toFixed(2) + '×';
@@ -182,6 +190,7 @@
     const cd = Math.max(0, li.nextIn); const hh = Math.floor(cd / 3600), mm = Math.floor(cd % 3600 / 60), ss = Math.floor(cd % 60);
     const s = (hh > 0 ? String(hh).padStart(2, '0') + ':' : '') + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
     $('mEpoch').textContent = s; $('mIndex').textContent = li.index.toFixed(6);
+    if (boostEndAt) { const b = Math.max(0, (boostEndAt - Date.now()) / 1000); const bh = Math.floor(b / 3600), bm = Math.floor(b % 3600 / 60), bs = Math.floor(b % 60); if ($('boostCd')) $('boostCd').textContent = String(bh).padStart(2, '0') + ':' + String(bm).padStart(2, '0') + ':' + String(bs).padStart(2, '0'); }
     if (A && anchor.agons) $('aStaked').textContent = tok(anchor.agons * li.index) + ' sVAULT';
   }
 

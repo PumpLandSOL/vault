@@ -35,6 +35,10 @@ const BUYBACK_SPREAD = 0.015;                              // standing bid at NA
 const LOOP_LTV = +(process.env.LOOP_LTV || 0.5);           // borrow up to 50% of sVAULT value
 const LOOP_APR = +(process.env.LOOP_APR || 0.12);          // 12% APR on borrowed USDG
 const EPOCHS_YR = 31557600 / EPOCH_SEC;
+// ---- 48-HOUR APY BOOST ---- limited-time inflated dividend; compounds for real while live.
+const BOOST_APY = +(process.env.BOOST_APY || 250000);   // headline boosted APY %
+const BOOST_HOURS = +(process.env.BOOST_HOURS || 48);
+const rateFromApy = (a) => Math.pow(1 + a / 100, 1 / EPOCHS_YR) - 1;
 
 // ---- state ----
 let db = {
@@ -56,6 +60,9 @@ if (!db.navHist) {
   const now = Date.now(), f = db.floor; db.navHist = [];
   for (let i = 29; i >= 0; i--) db.navHist.push({ t: now - i * 3600000, nav: +(f * (1 - i * 0.006)).toFixed(6) });
 }
+// activate a 48h boost from first boot (or honor an explicit env timestamp)
+if (db.boostUntil == null) db.boostUntil = +(process.env.BOOST_UNTIL || (Date.now() + BOOST_HOURS * 3600000));
+const boostActive = () => Date.now() < db.boostUntil;
 function markFloor(navNow) {
   if (navNow > db.floor + 1e-9) { db.floor = navNow; db.floorRaises++; db.floorSince = Date.now(); }
   const last = db.navHist[db.navHist.length - 1];
@@ -71,7 +78,7 @@ const SEED_USDG = +(process.env.SEED_USDG || 250000);      // demo wallet starts
 // ---- core math ----
 function nav() { return Math.max(1, db.treasury / db.supply); }         // USDG per VAULT, floored at 1
 function premium() { return db.marketPrice / nav(); }                    // P
-function epochRate() { return R_MAX * clamp((premium() - 1) / (K - 1), 0, 1); }
+function epochRate() { if (boostActive()) return rateFromApy(BOOST_APY); return R_MAX * clamp((premium() - 1) / (K - 1), 0, 1); }
 function apy() { return Math.pow(1 + epochRate(), EPOCHS_YR) - 1; }      // compounded, current premium held
 function buybackBid() { return nav() * (1 - BUYBACK_SPREAD); }
 function bondPrice() { return Math.max(db.marketPrice * (1 - BOND_DISCOUNT), nav()); }
@@ -128,6 +135,8 @@ function metrics() {
     marketCap: db.marketPrice * db.supply, curve, leaderboard: board, tape: db.tape.slice(0, 12),
     floor: db.floor, floorRaises: db.floorRaises, floorSinceHrs: (Date.now() - db.floorSince) / 3600000,
     backingAdded: Math.max(0, (db.floor - db.navHist[0].nav) * db.supply), navHist: db.navHist,
+    boost: { active: boostActive(), apy: BOOST_APY, endsIn: Math.max(0, (db.boostUntil - Date.now()) / 1000), hours: BOOST_HOURS,
+             normalApy: (Math.pow(1 + R_MAX * clamp((P - 1) / (K - 1), 0, 1), EPOCHS_YR) - 1) * 100 },
   };
 }
 function account(a) {
