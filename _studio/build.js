@@ -131,5 +131,34 @@ assets['vault-lineage'] = page(2400, 1350, `
      <div class="foot mono"><span>◆ Not affiliated with NetNet Capital</span><span style="color:var(--accent)">vaultcapitalrh.xyz</span></div>
    </div>`);
 
+// 7) VS NETNET 2400x1350 — feature comparison, Vault superior
+const crow = (label, net, vlt) => `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr;align-items:center;border-top:1px solid var(--line)">
+  <div style="font-size:28px;color:var(--ink);padding:26px 30px">${label}</div>
+  <div style="font-size:26px;color:var(--sub);padding:26px 30px;text-align:center;border-left:1px solid var(--line)">${net}</div>
+  <div style="font-size:26px;color:var(--cream);font-weight:700;padding:26px 30px;text-align:center;background:var(--deep)">${vlt}</div></div>`;
+assets['vault-vs-netnet'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:80px 130px;display:flex;flex-direction:column}
+  .ey{font-size:24px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:82px;font-weight:700;color:var(--deep);margin:10px 0 26px}
+  .tbl{border:1px solid var(--line2)}
+  .hd{display:grid;grid-template-columns:1.5fr 1fr 1fr;align-items:stretch}
+  .hd .c{padding:26px 30px;font-family:var(--disp);font-weight:600;font-size:34px;text-transform:uppercase}
+  .hd .net{text-align:center;color:var(--sub);border-left:1px solid var(--line);font-size:28px}
+  .hd .vlt{text-align:center;background:var(--deep);color:var(--cream)}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:26px;color:var(--sub)}`,
+  `<div class="wrap">
+     <div class="ey mono">// Head to head</div>
+     <div class="h disp">Same model. Sharper build.</div>
+     <div class="tbl">
+       <div class="hd"><div class="c">&nbsp;</div><div class="c net">NetNet</div><div class="c vlt">Vault Capital</div></div>
+       ${crow('NAV floor · redeem 1:1', '✓', '✓')}
+       ${crow('Premium-driven dividend', '✓', '✓')}
+       ${crow('Live NAV / premium / curve dashboard', '—', '✓ built-in')}
+       ${crow('One-click Loopback simulator', 'manual', '✓ + health meter')}
+       ${crow('All-time high', '$5M', 'unwritten')}
+     </div>
+     <div class="foot mono"><span>◆ Not affiliated with NetNet Capital</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
+   </div>`);
+
 for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
 console.log('done:', Object.keys(assets).length);
