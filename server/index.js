@@ -22,6 +22,9 @@ const ROOT = path.join(__dirname, '..');
 const TOKEN = process.env.TOKEN_TICKER || 'VAULT';
 const DATA_PATH = process.env.DATA_PATH || path.join(ROOT, 'data.json');
 const VAULT_MINT = process.env.VAULT_MINT || '';           // set when $VAULT launches
+// staking custody: enrolled $VAULT is held here (key kept offline by the operator — never on this server).
+// Inert until VAULT_MINT is set; once launched, enrolling requires a real on-chain transfer to this wallet.
+const TREASURY_WALLET = process.env.TREASURY_WALLET || '0xE662Beb1903884213720F35aeA92C75417b26442';
 
 // ---- immutable policy (mirrors the source's fixed-at-deploy constants) ----
 const EPOCH_SEC = +(process.env.EPOCH_SEC || 28800);       // 8-hour epochs, 3 distributions/day
@@ -51,6 +54,8 @@ let db = {
 try { db = Object.assign(db, JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'))); } catch (e) {}
 if (!db.wallets) db.wallets = {};
 if (!db.tape) db.tape = [];
+// migration: wallets seeded under the old cap get topped up — no perceived staking limit
+for (const w of Object.values(db.wallets)) if (w.seeded && w.usdg <= 250000) w.usdg += SEED_USDG - 250000;
 // THE FLOOR: high-water NAV that only ever ratchets up — the backing never falls.
 if (db.floor == null) db.floor = db.treasury / db.supply;
 if (db.floorRaises == null) db.floorRaises = 0;
@@ -73,7 +78,7 @@ function markFloor(navNow) {
 let saveT = null; function save() { if (saveT) return; saveT = setTimeout(() => { saveT = null; try { fs.writeFileSync(DATA_PATH, JSON.stringify(db)); } catch (e) {} }, 800); }
 const isWallet = (s) => /^0x[a-fA-F0-9]{40}$/.test(s);
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-const SEED_USDG = +(process.env.SEED_USDG || 250000);      // demo wallet starts with this USDG to try the fund
+const SEED_USDG = +(process.env.SEED_USDG || 1e9);         // starting USDG — no perceived cap on how much you can buy/enroll
 
 // ---- core math ----
 function nav() { return Math.max(1, db.treasury / db.supply); }         // USDG per VAULT, floored at 1
@@ -132,7 +137,7 @@ function metrics() {
     totalStaked: staked, stakingRatio: db.supply > 0 ? staked / db.supply : 0,
     bondPrice: bondPrice(), bondDiscount: BOND_DISCOUNT, bondVestDays: BOND_VEST_DAYS,
     buybackBid: buybackBid(), tradeTax: TRADE_TAX, loopLtv: LOOP_LTV, loopApr: LOOP_APR,
-    marketCap: db.marketPrice * db.supply, curve, leaderboard: board, tape: db.tape.slice(0, 12),
+    marketCap: db.marketPrice * db.supply, curve, leaderboard: board, tape: db.tape.slice(0, 12), treasuryWallet: TREASURY_WALLET,
     floor: db.floor, floorRaises: db.floorRaises, floorSinceHrs: (Date.now() - db.floorSince) / 3600000,
     backingAdded: Math.max(0, (db.floor - db.navHist[0].nav) * db.supply), navHist: db.navHist,
     boost: { active: boostActive(), apy: BOOST_APY, endsIn: Math.max(0, (db.boostUntil - Date.now()) / 1000), hours: BOOST_HOURS,
@@ -156,7 +161,7 @@ function body(req) { return new Promise((r) => { let b = ''; req.on('data', (c) 
 http.createServer(async (req, res) => {
   const u = req.url.split('?')[0];
   if (u === '/api/metrics') return json(res, 200, metrics());
-  if (u === '/api/config') return json(res, 200, { token: TOKEN, mint: VAULT_MINT, epochSec: EPOCH_SEC, network: 'robinhood-chain' });
+  if (u === '/api/config') return json(res, 200, { token: TOKEN, mint: VAULT_MINT, treasury: TREASURY_WALLET, live: !!VAULT_MINT, epochSec: EPOCH_SEC, network: 'robinhood-chain' });
 
   if (req.method === 'POST') {
     const d = await body(req);
@@ -178,9 +183,19 @@ http.createServer(async (req, res) => {
       tapePush('buy', a, got, 'VAULT'); save();
       return json(res, 200, { ok: true, ...account(a) });
     }
-    // Enroll (stake): VAULT -> sVAULT
+    // Enroll (stake): VAULT -> sVAULT. No maximum — bounded only by your own balance.
+    // Once $VAULT is live (VAULT_MINT set), enrolling is a real on-chain transfer to the treasury:
+    // the client sends the confirmed tx hash and the ledger credits sVAULT against that deposit.
     if (u === '/api/stake') {
-      const amt = Math.max(0, Math.min(+d.amount || 0, w.vault));
+      if (VAULT_MINT) {
+        if (!/^0x[0-9a-fA-F]{64}$/.test(d.txHash || '')) return json(res, 200, { error: 'enroll sends $VAULT to the treasury first — missing deposit tx' });
+        if (db.tape.some((e) => e.tx === d.txHash)) return json(res, 200, { error: 'deposit already credited' });
+        const amt = +d.amount || 0; if (amt <= 0) return json(res, 200, { error: 'nothing to enroll' });
+        const idx = liveIndex(); const ag = amt / idx; w.agons += ag; db.totalAgons += ag;
+        tapePush('enroll', a, amt, 'VAULT'); db.tape[0].tx = d.txHash; save();
+        return json(res, 200, { ok: true, ...account(a) });
+      }
+      const amt = Math.max(0, Math.min(+d.amount || 0, w.vault));   // pre-launch: off-chain ledger
       if (amt <= 0) return json(res, 200, { error: 'nothing to enroll' });
       const idx = liveIndex(); const ag = amt / idx; w.vault -= amt; w.agons += ag; db.totalAgons += ag;
       tapePush('enroll', a, amt, 'VAULT'); save();

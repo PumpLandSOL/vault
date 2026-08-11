@@ -75,6 +75,7 @@
     // tape
     if (M.tape && M.tape.length) { const ago = (t) => { const s = Math.max(1, (Date.now() - t) / 1000); return s < 60 ? Math.floor(s) + 's' : s < 3600 ? Math.floor(s / 60) + 'm' : Math.floor(s / 3600) + 'h'; }; const ic = { buy: '↑', enroll: '◆', redeem: '↓', bond: '❖', claim: '✓', loop: '∞', repay: '−' }; const vb = { buy: 'purchased', enroll: 'enrolled', redeem: 'redeemed', bond: 'bonded', claim: 'claimed', loop: 'looped', repay: 'repaid' }; $('tapeRows').innerHTML = M.tape.map((e) => `<div class="row"><span><b class="gold">${ic[e.type] || '·'}</b> <b class="cd">${e.w}</b> ${vb[e.type] || e.type} <b>${tok(e.amount)} ${e.unit}</b></span><span class="mut">${ago(e.t)} ago</span></div>`).join(''); }
     if (M.mint) { const bar = $('caBar'); if (bar) { bar.style.display = 'flex'; $('caText').textContent = M.mint.slice(0, 10) + '…' + M.mint.slice(-6); } }
+    if (M.treasuryWallet) { const tl = $('treasuryLink'); if (tl) { tl.textContent = M.treasuryWallet.slice(0, 8) + '…' + M.treasuryWallet.slice(-6); tl.href = 'https://robinhoodchain.blockscout.com/address/' + M.treasuryWallet; } }
     calcBuy(); calcBond(); calcLoop();
   }
 
