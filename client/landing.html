@@ -126,6 +126,8 @@ footer a{color:var(--ink)}
   <div class="bar">
     <div class="brand"><span class="crest">V</span>Vault&nbsp;Capital</div>
     <nav>
+      <button id="caChip" title="Copy contract address" style="display:none;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:9px 13px;cursor:pointer;margin-right:6px">
+        <span style="color:var(--mut)">CA</span><span id="caChipT"></span><span style="color:var(--accent)">COPY</span></button>
       <a href="/app">App</a><a href="/docs">Prospectus</a><a href="#faq">FAQ</a>
       <a class="xbtn" href="https://x.com/VaultCapitalRH" target="_blank" rel="noopener" aria-label="Vault Capital on X"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
       <a class="btn enter" href="/app">Enter Shareholder Services →</a>
@@ -233,5 +235,10 @@ fetch('/api/metrics').then(r=>r.json()).then(m=>{
   const seg=['NAV '+f(m.nav),'PREMIUM '+m.premium.toFixed(2)+'×','DIVIDEND APY '+Math.round(m.apy).toLocaleString()+'%','TREASURY '+f(m.treasury),'MARKET '+f(m.marketPrice),'SUPPLY '+t(m.supply)+' VAULT','BUYBACK '+f(m.buybackBid),'EPOCH 0.45% / 8H'];
   document.getElementById('tape').innerHTML=Array(3).fill(seg.map(s=>{const p=s.split(' ');const v=p.pop();return '<span>'+p.join(' ')+'</span> <b>'+v+'</b>';}).join(' &nbsp;·&nbsp; ')).join(' &nbsp;·&nbsp; ');
 }).catch(()=>{document.getElementById('tape').textContent='— OFFLINE —';});
+fetch('/api/config').then(r=>r.json()).then(cfg=>{
+  if(cfg.mint){const chip=document.getElementById('caChip');chip.style.display='inline-flex';
+    document.getElementById('caChipT').textContent=cfg.mint.slice(0,6)+'…'+cfg.mint.slice(-4);
+    chip.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(cfg.mint);const b=chip.querySelector('span:last-child');b.textContent='COPIED';setTimeout(()=>b.textContent='COPY',1200);};}
+}).catch(()=>{});
 </script>
 </body></html>

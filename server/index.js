@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 8180;
 const ROOT = path.join(__dirname, '..');
 const TOKEN = process.env.TOKEN_TICKER || 'VAULT';
 const DATA_PATH = process.env.DATA_PATH || path.join(ROOT, 'data.json');
-const VAULT_MINT = process.env.VAULT_MINT || '';           // set when $VAULT launches
+const VAULT_MINT = process.env.VAULT_MINT || '0x5Af29B5fe51d1e652Dbd6d760d6c242aA6f41129';  // $VAULT on Robinhood Chain
 // staking custody: enrolled $VAULT is held here (key kept offline by the operator — never on this server).
 // Inert until VAULT_MINT is set; once launched, enrolling requires a real on-chain transfer to this wallet.
 const TREASURY_WALLET = process.env.TREASURY_WALLET || '0xE662Beb1903884213720F35aeA92C75417b26442';
