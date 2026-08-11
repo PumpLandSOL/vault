@@ -299,5 +299,43 @@ assets['vault-credit'] = page(2400, 1350, `
      <div class="foot mono"><span>◆ Manage your LTV below the 75% liquidation line</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
    </div>`);
 
+// 12) THREE-WAY COMPARISON 2400x1350 — NetNet vs Nest vs Vault
+const trow = (label, net, nest, vlt, big) => `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.15fr;align-items:center;border-top:1px solid var(--line)">
+  <div style="font-size:${big?27:25}px;color:var(--ink);padding:${big?20:17}px 30px;font-weight:${big?700:400}">${label}</div>
+  <div style="font-size:23px;color:var(--sub);padding:17px 20px;text-align:center;border-left:1px solid var(--line)">${net}</div>
+  <div style="font-size:23px;color:var(--sub);padding:17px 20px;text-align:center;border-left:1px solid var(--line)">${nest}</div>
+  <div style="font-size:23px;color:var(--cream);font-weight:700;padding:17px 20px;text-align:center;background:var(--deep)">${vlt}</div></div>`;
+assets['vault-vs-all'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:56px 110px;display:flex;flex-direction:column}
+  .ey{font-size:22px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:66px;font-weight:700;color:var(--deep);margin:6px 0 18px}
+  .tbl{border:1px solid var(--line2)}
+  .hd{display:grid;grid-template-columns:2fr 1fr 1fr 1.15fr}
+  .hd .c{padding:18px 30px;font-family:var(--disp);font-weight:600;font-size:30px;text-transform:uppercase}
+  .hd .o{text-align:center;color:var(--sub);border-left:1px solid var(--line);font-size:26px}
+  .hd .v{text-align:center;background:var(--deep);color:var(--cream);font-size:28px}
+  .ath{font-size:19px;font-weight:400;color:var(--mut);text-transform:none;letter-spacing:0;display:block;margin-top:2px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:22px;color:var(--sub);padding-top:18px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The whole field, one table</div>
+     <div class="h disp">Same idea. Not the same build.</div>
+     <div class="tbl">
+       <div class="hd"><div class="c">&nbsp;</div>
+         <div class="c o">NetNet<span class="ath mono">$5M ATH</span></div>
+         <div class="c o">Nest<span class="ath mono">$16M ATH</span></div>
+         <div class="c v">Vault Capital<span class="ath mono" style="color:#9fe6c6">unwritten</span></div></div>
+       ${trow('Staking APY', '13,551%', '6%', '250,000% ⚡', true)}
+       ${trow('NAV floor · redeem 1:1', '✓', 'peg', '✓')}
+       ${trow('Premium-driven dividend', '✓', '—', '✓')}
+       ${trow('Rising-floor tracker', '—', '—', '✓')}
+       ${trow('Borrow against your stake', '—', '✓', '✓')}
+       ${trow('One-click leverage loop', 'manual', '—', '✓')}
+       ${trow('Tokenized RWA reserve book', '—', '✓', '✓')}
+       ${trow('48-hour APY boost', '—', '—', '✓')}
+       ${trow('Live NAV / premium dashboard', '—', '—', '✓')}
+     </div>
+     <div class="foot mono"><span>◆ Not affiliated with NetNet or Nest · figures per each project</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
+   </div>`);
+
 for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
 console.log('done:', Object.keys(assets).length);
