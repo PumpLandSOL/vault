@@ -9,6 +9,9 @@
   const n0 = (n) => Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
   const n2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const usd = (n) => '$' + (Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : Math.abs(n) >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : n.toFixed(2));
+  // price-aware formatter: keeps precision for sub-dollar tokens ($0.00003105) and abbreviates big numbers
+  const px = (n) => { if (n == null || !isFinite(n)) return '—'; const a = Math.abs(n); if (a >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M'; if (a >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K'; if (a >= 1) return '$' + n.toFixed(2); if (a === 0) return '$0'; return '$' + Number(n.toPrecision(4)).toString(); };
+  const pxN = (n) => (Math.abs(n) >= 1 ? Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : String(Number(n.toPrecision(4))));
   const tok = (n) => Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : Math.abs(n) >= 1e3 ? n0(n) : n2(n);
   const pctf = (n) => (n * 100).toLocaleString('en-US', { maximumFractionDigits: n < 0.01 ? 3 : 2 }) + '%';
   const apyf = (n) => n0(n) + '%';
@@ -53,19 +56,19 @@
       $('mApy').nextElementSibling.textContent = 'BOOSTED · ends soon · compounds every 8h';
       boostEndAt = Date.now() + M.boost.endsIn * 1000;
     } else if ($('boostBanner')) { $('boostBanner').style.display = 'none'; boostEndAt = 0; }
-    $('mNav').textContent = usd(M.nav);
-    $('mPrice').textContent = usd(M.marketPrice);
+    $('mNav').textContent = px(M.nav);
+    $('mPrice').textContent = px(M.marketPrice);
     $('mPremium').textContent = M.premium.toFixed(2) + '×';
     $('mTreasury').textContent = usd(M.treasury);
     $('mSupply').textContent = tok(M.supply);
     $('mMcap').textContent = usd(M.marketCap);
-    $('mBacking').textContent = usd(M.backing) + ' / VAULT';
+    $('mBacking').textContent = px(M.backing) + ' / VAULT';
     $('mRatio').textContent = pctf(M.stakingRatio) + ' enrolled';
     $('mEpochRate').textContent = pctf(M.epochRate) + ' / epoch';
-    $('mBuyback').textContent = usd(M.buybackBid);
+    $('mBuyback').textContent = px(M.buybackBid);
     drawCurve();
     // THE FLOOR panel
-    $('fFloor').textContent = usd(M.floor);
+    $('fFloor').textContent = px(M.floor);
     $('fRaises').textContent = n0(M.floorRaises);
     $('fAdded').textContent = usd(M.backingAdded);
     $('fSince').textContent = M.floorSinceHrs < 1 ? Math.round(M.floorSinceHrs * 60) + 'm' : M.floorSinceHrs < 48 ? M.floorSinceHrs.toFixed(1) + 'h' : Math.round(M.floorSinceHrs / 24) + 'd';
@@ -148,7 +151,7 @@
   // actions
   $('buyBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('buyAmt').value); if (!(amt > 0)) return toast('enter USDG'); const r = await post('/api/buy', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); $('buyAmt').value = ''; toast('Purchased ' + tok(amt / M.marketPrice) + ' VAULT'); loadMetrics(); };
   $('buyAmt').addEventListener('input', calcBuy);
-  function calcBuy() { if (!M) return; const amt = parseFloat($('buyAmt').value) || 0; $('buyRate').textContent = '1 VAULT = ' + n2(M.marketPrice) + ' USDG'; $('buyOut').textContent = tok(amt * (1 - M.tradeTax) / M.marketPrice) + ' VAULT'; $('buyTax').textContent = usd(amt * M.tradeTax) + ' tax (' + pctf(M.tradeTax) + ')'; }
+  function calcBuy() { if (!M) return; const amt = parseFloat($('buyAmt').value) || 0; $('buyRate').textContent = '1 VAULT = ' + pxN(M.marketPrice) + ' USDG'; $('buyOut').textContent = tok(amt * (1 - M.tradeTax) / M.marketPrice) + ' VAULT'; $('buyTax').textContent = usd(amt * M.tradeTax) + ' tax (' + pctf(M.tradeTax) + ')'; }
 
   $('segEnroll').onclick = () => { stakeMode = 'enroll'; $('segEnroll').classList.add('on'); $('segRedeem').classList.remove('on'); $('stakeBtn').textContent = 'Enroll'; };
   $('segRedeem').onclick = () => { stakeMode = 'redeem'; $('segRedeem').classList.add('on'); $('segEnroll').classList.remove('on'); $('stakeBtn').textContent = 'Redeem'; };
@@ -157,7 +160,7 @@
 
   $('bondBtn').onclick = async () => { if (!isW(wallet)) return toast('connect first'); const amt = parseFloat($('bondAmt').value); if (!(amt > 0)) return toast('enter USDG'); const r = await post('/api/bond', { wallet, amount: amt }); if (r.error) return toast(r.error); A = r; renderAccount(); $('bondAmt').value = ''; toast('Bonded — ' + tok(r.payout) + ' VAULT vesting'); loadMetrics(); };
   $('bondAmt').addEventListener('input', calcBond);
-  function calcBond() { if (!M) return; const amt = parseFloat($('bondAmt').value) || 0; $('bondPrice').textContent = n2(M.bondPrice) + ' USDG'; $('bondOut').textContent = tok(amt / M.bondPrice) + ' VAULT'; $('bondDisc').textContent = pctf(M.bondDiscount) + ' discount · ' + M.bondVestDays + '-day vest'; }
+  function calcBond() { if (!M) return; const amt = parseFloat($('bondAmt').value) || 0; $('bondPrice').textContent = pxN(M.bondPrice) + ' USDG'; $('bondOut').textContent = tok(amt / M.bondPrice) + ' VAULT'; $('bondDisc').textContent = pctf(M.bondDiscount) + ' discount · ' + M.bondVestDays + '-day vest'; }
   async function doClaim(autostake) { const r = await post('/api/claim', { wallet, autostake }); if (r.error) return toast(r.error); A = r; reanchor(); renderAccount(); toast(autostake ? 'Claimed & enrolled ' + tok(r.claimed) : 'Claimed ' + tok(r.claimed) + ' VAULT'); }
 
   // Loopback simulator + execution

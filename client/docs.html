@@ -44,7 +44,7 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:30px 0;color:var
   <div class="k">A NAV-backed reserve protocol on Robinhood Chain. This document describes the mechanism exactly as it is deployed. Where a number appears, it is a constant fixed at deployment — not an owner knob.</div>
 
   <h2 id="mechanism">1 · The Mechanism</h2>
-  <p><b>Net Asset Value (NAV)</b> is the backing per token — risk-free treasury value divided by total supply. The protocol holds one invariant above all: <em>every VAULT is at all times backed by at least 1 USDG of risk-free value.</em> Treasury-held VAULT is valued at that 1 USDG floor, never at market price.</p>
+  <p><b>Net Asset Value (NAV)</b> is the backing per token — risk-free treasury value divided by total supply. The protocol holds one invariant above all: <em>every VAULT is at all times backed by the treasury.</em> Treasury-held reserves are valued at that risk-free floor, never at market price, and the floor only rises as bonds and buys grow reserves.</p>
   <p>The <b>market price</b> is a time-weighted average (TWAP) from the VAULT/USDG pair. The <b>premium</b> the market pays over backing is simply:</p>
   <div class="formula">P = marketPrice / NAV</div>
   <p>The oracle is fail-closed: readings require a valid observation window, and outside it every dependent operation reverts. The fund will not act on a stale price.</p>
@@ -62,7 +62,7 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:30px 0;color:var
   <div class="note">There are no owner functions in the emissions path. No admin can alter the epoch length, R_MAX, K, the TWAP source, the fee split, or the bond rule. <b>The only way to change the dividend policy is to deploy a different fund.</b></div>
 
   <h2 id="reserve">3 · The Reserve Cap</h2>
-  <p>The distributor can never mint past the treasury's risk-free value. If a distribution would push <span class="mono">supply × 1 USDG</span> above reserves, it clamps to the cap. The backing invariant is enforced automatically, every epoch — the printing press is wired to the vault door.</p>
+  <p>The distributor can never mint past the treasury's risk-free value. If a distribution would push <span class="mono">supply × NAV</span> above reserves, it clamps to the cap. The backing invariant is enforced automatically, every epoch — the printing press is wired to the vault door.</p>
 
   <h2 id="purchase">4 · Direct Purchase &amp; Trading Tax</h2>
   <p>The Direct Purchase Plan buys VAULT at the exchange route, less a <b>5% trading tax</b>. The tax splits to the buyback program, the treasury, and the team; proceeds accrue to reserves. The protocol always quotes around NAV from both sides — a standing buyback bid at <b>NAV − 1.5%</b> below, and bonds at or above NAV above.</p>

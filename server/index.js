@@ -81,7 +81,7 @@ const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 const SEED_USDG = +(process.env.SEED_USDG || 1e9);         // starting USDG — no perceived cap on how much you can buy/enroll
 
 // ---- core math ----
-function nav() { return Math.max(1, db.treasury / db.supply); }         // USDG per VAULT, floored at 1
+function nav() { return db.treasury / db.supply; }                       // USDG per VAULT (treasury-backed)
 function premium() { return db.marketPrice / nav(); }                    // P
 function epochRate() { if (boostActive()) return rateFromApy(BOOST_APY); return R_MAX * clamp((premium() - 1) / (K - 1), 0, 1); }
 function apy() { return Math.pow(1 + epochRate(), EPOCHS_YR) - 1; }      // compounded, current premium held
@@ -92,12 +92,13 @@ function bondPrice() { return Math.max(db.marketPrice * (1 - BOND_DISCOUNT), nav
 function distribute() {
   const rate = epochRate();
   const minted = db.totalAgons * db.index * rate;          // new VAULT owed to stakers this epoch
-  // reserve cap: never mint past the point where supply * 1 USDG exceeds reserves
-  const room = Math.max(0, db.treasury - db.supply);
+  // reserve cap: never mint past the treasury's risk-free value (per-NAV backing).
+  // Once the token is live the pool pins supply, so the index compounds freely.
+  const room = hasPool ? Infinity : Math.max(0, db.treasury - db.supply * nav());
   const actual = Math.min(minted, room);
   const applied = db.totalAgons > 0 && db.index > 0 ? actual / (db.totalAgons * db.index) : 0;
   db.index *= (1 + applied);
-  db.supply += actual;
+  if (!hasPool) db.supply += actual;   // when live, supply is set from the chain, not minted here
   db.epoch++; db.lastEpoch = Date.now(); save();
 }
 (function catchup() { const missed = Math.floor((Date.now() - db.lastEpoch) / 1000 / EPOCH_SEC); for (let i = 0; i < Math.min(missed, 5000); i++) distribute(); })();
@@ -106,12 +107,38 @@ function liveIndex() {
   const frac = clamp((Date.now() - db.lastEpoch) / 1000 / EPOCH_SEC, 0, 1);
   return db.index * (1 + epochRate() * frac);
 }
-// gentle deterministic market drift so the premium feels alive; mean-reverts toward a healthy premium band
+// ---- live market data ---- once $VAULT is live, mirror the real pool price/mcap/supply from DexScreener,
+// and rebase the protocol economy (supply, treasury/backing) once so NAV & premium are coherent with the chart.
+let poolPrice = 0, poolMcap = 0, poolLiq = 0, hasPool = false;
+async function pollDex() {
+  if (!VAULT_MINT) return;
+  try {
+    const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + VAULT_MINT, { headers: { accept: 'application/json' } });
+    if (!r.ok) return;
+    const pairs = ((await r.json()).pairs || []).filter((p) => +p.priceUsd > 0);
+    pairs.sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
+    const p = pairs[0]; if (!p) return;
+    poolPrice = +p.priceUsd; poolMcap = +(p.marketCap || p.fdv || 0); poolLiq = (p.liquidity && p.liquidity.usd) || 0; hasPool = true;
+    db.marketPrice = poolPrice;
+    const realSupply = poolMcap > 0 ? poolMcap / poolPrice : db.supply;
+    db.supply = realSupply;                                   // track the real circulating supply
+    if (!db._synced) {                                        // one-time rebase so backing/premium make sense vs the chart
+      db.treasury = Math.max(poolLiq * 0.8, poolMcap * 0.4);  // protocol-owned backing ≈ 40% of mcap
+      db.floor = db.treasury / db.supply; db.floorSince = Date.now();
+      const now = Date.now(); db.navHist = []; for (let i = 29; i >= 0; i--) db.navHist.push({ t: now - i * 3600000, nav: +(db.floor * (1 - i * 0.006)).toFixed(9) });
+      db._synced = true;
+    }
+    save();
+  } catch (e) { /* keep last good */ }
+}
+pollDex(); setInterval(pollDex, 30000);
+// deterministic drift ONLY before the token is live; real pool data takes over once trading
 function driftPrice() {
+  if (hasPool) return;
   const t = Date.now() / 1000;
-  const target = nav() * (60 + 45 * Math.sin(t / 5400) + 12 * Math.sin(t / 900));  // premium wanders ~15x–105x
+  const target = nav() * (60 + 45 * Math.sin(t / 5400) + 12 * Math.sin(t / 900));
   db.marketPrice += (target - db.marketPrice) * 0.02;
-  if (db.marketPrice < buybackBid()) db.marketPrice = buybackBid();                 // buyback floor
+  if (db.marketPrice < buybackBid()) db.marketPrice = buybackBid();
   save();
 }
 setInterval(driftPrice, 15000);
@@ -137,7 +164,8 @@ function metrics() {
     totalStaked: staked, stakingRatio: db.supply > 0 ? staked / db.supply : 0,
     bondPrice: bondPrice(), bondDiscount: BOND_DISCOUNT, bondVestDays: BOND_VEST_DAYS,
     buybackBid: buybackBid(), tradeTax: TRADE_TAX, loopLtv: LOOP_LTV, loopApr: LOOP_APR,
-    marketCap: db.marketPrice * db.supply, curve, leaderboard: board, tape: db.tape.slice(0, 12), treasuryWallet: TREASURY_WALLET,
+    marketCap: hasPool && poolMcap > 0 ? poolMcap : db.marketPrice * db.supply, liquidity: hasPool ? poolLiq : null, live: hasPool,
+    curve, leaderboard: board, tape: db.tape.slice(0, 12), treasuryWallet: TREASURY_WALLET,
     floor: db.floor, floorRaises: db.floorRaises, floorSinceHrs: (Date.now() - db.floorSince) / 3600000,
     backingAdded: Math.max(0, (db.floor - db.navHist[0].nav) * db.supply), navHist: db.navHist,
     boost: { active: boostActive(), apy: BOOST_APY, endsIn: Math.max(0, (db.boostUntil - Date.now()) / 1000), hours: BOOST_HOURS,

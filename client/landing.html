@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Vault Capital // NAV-backed reserve · Robinhood Chain</title>
-<meta name="description" content="Vault Capital: a NAV-backed reserve protocol on Robinhood Chain. Every VAULT is backed by at least 1 USDG. Dividends scale with the premium the market pays.">
+<meta name="description" content="Vault Capital: a NAV-backed reserve protocol on Robinhood Chain. Every VAULT is backed by the protocol treasury. Dividends scale with the premium the market pays.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -139,7 +139,7 @@ footer a{color:var(--ink)}
     <div class="L">
       <span class="stamp"><span class="b"></span>Reserve Protocol · Immutable Policy</span>
       <div class="giant">Vault<br>Cap<span class="o">ital</span></div>
-      <div class="tagline">A reserve currency in the shape of a capital-management fund. Every VAULT is backed by at least <b>1 USDG</b> of risk-free value — a hard floor you redeem against, <b>1:1</b>, at any hour. Above it, the press runs, scaled to the premium the market will pay.</div>
+      <div class="tagline">A reserve currency in the shape of a capital-management fund. Every VAULT is backed by the protocol's risk-free treasury — a hard floor you redeem against, <b>1:1</b>, at any hour. Above it, the press runs, scaled to the premium the market will pay.</div>
       <div class="heroCta"><a class="btn solid" href="/app">Enter Shareholder Services →</a><a class="btn" href="/docs">Read the Prospectus</a></div>
     </div>
     <div class="R">
@@ -181,7 +181,7 @@ footer a{color:var(--ink)}
   <div class="sechead" id="faq">// Frequently Asked</div>
   <div class="faq">
     <details class="fitem"><summary class="fq"><span class="qn">Q1</span><span class="qt">What is NAV?</span><span class="pm">+</span></summary>
-      <div class="fa">Net Asset Value — the risk-free treasury value divided by total supply, expressed per token. It is the <b>backing floor</b>: every VAULT is guaranteed to be worth at least 1 USDG of reserves, and NAV only rises as bonds add to the treasury. It is both the value you redeem against and the reference point the entire dividend policy is measured from.</div></details>
+      <div class="fa">Net Asset Value — the risk-free treasury value divided by total supply, expressed per token. It is the <b>backing floor</b>: the treasury value standing behind every VAULT, which rises as bonds and buys add to reserves. It is both the value you redeem against and the reference point the entire dividend policy is measured from.</div></details>
     <details class="fitem"><summary class="fq"><span class="qn">Q2</span><span class="qt">What is the premium, and why does it matter?</span><span class="pm">+</span></summary>
       <div class="fa">The premium <b>P = market price / NAV</b> — how much more the market pays than the backing. It is the <b>only input to the dividend</b>. At or below NAV (P ≤ 1), the dividend is zero. At a 1.75× premium or higher, it pays the full rate. The fund emits exactly the confidence the market extends to it.</div></details>
     <details class="fitem"><summary class="fq"><span class="qn">Q3</span><span class="qt">How are dividends paid?</span><span class="pm">+</span></summary>
