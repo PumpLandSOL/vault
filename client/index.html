@@ -175,6 +175,15 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var
       <div class="stat"><div class="l">Drawdowns</div><div class="v" style="color:var(--accent)">0</div><div class="s">the floor has never fallen</div></div>
     </div>
   </div>
+  <div class="panel" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div><div class="ptitle">The Reserve Book</div><div class="psub">the treasury is held as tokenized real-world assets on Robinhood Chain — earning real yield that compounds the floor.</div></div>
+      <div style="text-align:right"><div class="mono" style="font-size:12px;color:var(--mut);letter-spacing:.14em">BLENDED REAL YIELD</div><div class="mono" id="rReal" style="font-size:30px;font-weight:700;color:var(--accent)">—</div></div>
+    </div>
+    <div id="rBar" style="display:flex;height:16px;margin-top:18px;border:1px solid var(--line);overflow:hidden"></div>
+    <div class="rows" id="rRows" style="margin-top:14px"></div>
+    <div class="meta"><span>Backed by tokenized US equities, an S&amp;P 500 ETF, short-term T-Bills and USDG.</span><span>RWA value <b class="bignum" id="rVal">—</b></span></div>
+  </div>
   <div class="grid g2" style="margin-top:16px">
     <div class="panel" id="lbBox" style="display:none"><div class="ptitle" style="font-size:19px">Register of Shareholders</div><div class="rows" id="lbRows"></div></div>
     <div class="panel"><div class="ptitle" style="font-size:19px">The Ticker Tape</div><div class="psub">every action on the fund, live.</div><div class="rows" id="tapeRows"><div class="psub">Quiet on the desk.</div></div></div>

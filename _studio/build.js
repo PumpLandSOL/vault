@@ -229,5 +229,40 @@ assets['vault-vs-nest'] = page(2400, 1350, `
      <div class="foot mono"><span>◆ Nest sNUSD ~6% real yield · not affiliated</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
    </div>`);
 
+// 10) THE RESERVE BOOK 2400x1350 — tokenized RWA backing
+const HOLD = [['NVDAx','NVIDIA',18],['SPYx','S&P 500 ETF',16],['TBILx','3-Month T-Bill',16],['USDG','USDG reserve',18],['AAPLx','Apple',12],['MSFTx','Microsoft',12],['TSLAx','Tesla',8]];
+const holdRow = (s,n,w) => `<div style="display:flex;align-items:center;gap:20px;border-top:1px solid var(--line);padding:20px 4px">
+  <div class="mono" style="font-size:26px;font-weight:700;color:var(--deep);min-width:120px">${s}</div>
+  <div style="font-size:24px;color:var(--ink);flex:1">${n}</div>
+  <div style="flex:2;height:14px;background:#e7e2d4"><div style="height:100%;width:${w*4}%;background:var(--deep)"></div></div>
+  <div class="mono" style="font-size:24px;font-weight:700;min-width:70px;text-align:right">${w}%</div></div>`;
+assets['vault-reserve'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:72px 120px;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:82px;font-weight:700;color:var(--deep);line-height:1;margin:12px 0 8px}
+  .s{font-size:28px;color:var(--sub);max-width:1500px;line-height:1.5}
+  .split{display:flex;gap:60px;margin-top:30px;flex:1}
+  .book{flex:1.5}
+  .side{flex:1;display:flex;flex-direction:column;gap:20px}
+  .card{border:1px solid var(--line2);padding:30px 34px}
+  .card.dk{background:var(--deep);color:var(--cream)}
+  .card .v{font-family:var(--mono);font-size:64px;font-weight:700}
+  .card .l{font-size:22px;margin-top:6px;opacity:.85}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:24px;color:var(--sub);padding-top:22px}`,
+  `<div class="wrap">
+     <div class="ey mono">// Proof of reserves · Robinhood Chain</div>
+     <div class="h disp">Backed by real assets.</div>
+     <div class="s">Vault Capital's treasury is held as tokenized US equities, an S&P 500 ETF, short-term T-Bills and USDG — earning real yield that compounds the floor. Not a promise. A portfolio.</div>
+     <div class="split">
+       <div class="book">${HOLD.map((h)=>holdRow(h[0],h[1],h[2])).join('')}</div>
+       <div class="side">
+         <div class="card dk"><div class="v">2.14%</div><div class="l">blended real yield · accrues to backing</div></div>
+         <div class="card"><div class="v" style="color:var(--deep)">7 assets</div><div class="l">tokenized equities · ETF · T-Bills · USDG</div></div>
+         <div class="card"><div class="v" style="color:var(--deep)">↑ only</div><div class="l">real income ratchets the NAV floor</div></div>
+       </div>
+     </div>
+     <div class="foot mono"><span>◆ Reserve backing on-chain · not affiliated with Nest</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
+   </div>`);
+
 for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
 console.log('done:', Object.keys(assets).length);

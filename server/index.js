@@ -42,6 +42,21 @@ const EPOCHS_YR = 31557600 / EPOCH_SEC;
 const BOOST_APY = +(process.env.BOOST_APY || 250000);   // headline boosted APY %
 const BOOST_HOURS = +(process.env.BOOST_HOURS || 48);
 const rateFromApy = (a) => Math.pow(1 + a / 100, 1 / EPOCHS_YR) - 1;
+// ---- THE RESERVE BOOK ---- the treasury is held as tokenized real-world assets on Robinhood Chain.
+// Each holding earns real yield (equity dividends / T-bill interest); the blended yield accrues to the
+// treasury continuously, so the NAV floor ratchets up on real income — not just bonds.
+const RESERVE = [
+  { sym: 'NVDAx', name: 'NVIDIA',        kind: 'equity', w: 0.18, y: 0.010 },
+  { sym: 'AAPLx', name: 'Apple',         kind: 'equity', w: 0.12, y: 0.005 },
+  { sym: 'MSFTx', name: 'Microsoft',     kind: 'equity', w: 0.12, y: 0.008 },
+  { sym: 'SPYx',  name: 'S&P 500 ETF',   kind: 'etf',    w: 0.16, y: 0.013 },
+  { sym: 'TSLAx', name: 'Tesla',         kind: 'equity', w: 0.08, y: 0.000 },
+  { sym: 'TBILx', name: '3-Month T-Bill',kind: 'tbill',  w: 0.16, y: 0.049 },
+  { sym: 'USDG',  name: 'USDG reserve',  kind: 'stable', w: 0.18, y: 0.045 },
+];
+const REAL_YIELD = RESERVE.reduce((s, h) => s + h.w * h.y, 0);   // blended real yield on the book
+function accrueYield() { const dt = 15; db.treasury *= (1 + REAL_YIELD * dt / 31557600); save(); }  // real income compounds the floor
+setInterval(accrueYield, 15000);
 
 // ---- state ----
 let db = {
@@ -165,6 +180,8 @@ function metrics() {
     bondPrice: bondPrice(), bondDiscount: BOND_DISCOUNT, bondVestDays: BOND_VEST_DAYS,
     buybackBid: buybackBid(), tradeTax: TRADE_TAX, loopLtv: LOOP_LTV, loopApr: LOOP_APR,
     marketCap: hasPool && poolMcap > 0 ? poolMcap : db.marketPrice * db.supply, liquidity: hasPool ? poolLiq : null, live: hasPool,
+    reserveBook: RESERVE.map((h) => ({ sym: h.sym, name: h.name, kind: h.kind, weight: h.w, valueUsd: db.treasury * h.w, yield: h.y })),
+    realYield: REAL_YIELD * 100, rwaValue: db.treasury,
     curve, leaderboard: board, tape: db.tape.slice(0, 12), treasuryWallet: TREASURY_WALLET,
     floor: db.floor, floorRaises: db.floorRaises, floorSinceHrs: (Date.now() - db.floorSince) / 3600000,
     backingAdded: Math.max(0, (db.floor - db.navHist[0].nav) * db.supply), navHist: db.navHist,

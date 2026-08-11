@@ -73,6 +73,15 @@
     $('fAdded').textContent = usd(M.backingAdded);
     $('fSince').textContent = M.floorSinceHrs < 1 ? Math.round(M.floorSinceHrs * 60) + 'm' : M.floorSinceHrs < 48 ? M.floorSinceHrs.toFixed(1) + 'h' : Math.round(M.floorSinceHrs / 24) + 'd';
     drawFloor();
+    // THE RESERVE BOOK — tokenized RWA treasury
+    if (M.reserveBook) {
+      $('rReal').textContent = M.realYield.toFixed(2) + '%';
+      $('rVal').textContent = usd(M.rwaValue);
+      const shades = { equity: 'var(--accent)', etf: 'var(--accent2)', tbill: 'var(--deep)', stable: 'var(--mut)' };
+      $('rBar').innerHTML = M.reserveBook.map((h) => `<div title="${h.sym} ${(h.weight * 100).toFixed(0)}%" style="width:${(h.weight * 100).toFixed(2)}%;background:${shades[h.kind] || 'var(--accent)'};border-right:1px solid var(--bg)"></div>`).join('');
+      const kindLabel = { equity: 'tokenized equity', etf: 'tokenized ETF', tbill: 'T-Bill', stable: 'stable' };
+      $('rRows').innerHTML = M.reserveBook.map((h) => `<div class="row"><span><b class="cd">${h.sym}</b> ${h.name} <span class="mut">· ${kindLabel[h.kind]}</span></span><span><b>${(h.weight * 100).toFixed(0)}%</b> · ${usd(h.valueUsd)} · <span style="color:var(--accent)">${(h.yield * 100).toFixed(1)}% yld</span></span></div>`).join('');
+    }
     // leaderboard
     if (M.leaderboard && M.leaderboard.length) { $('lbBox').style.display = 'block'; $('lbRows').innerHTML = M.leaderboard.map((b, i) => `<div class="row"><span>${i + 1}. <b class="cd">${b.wallet}</b></span><span><b class="gold">${tok(b.staked)} sVAULT</b> · ${pctf(b.share)}</span></div>`).join(''); }
     // tape
