@@ -337,5 +337,34 @@ assets['vault-vs-all'] = page(2400, 1350, `
      <div class="foot mono"><span>◆ Not affiliated with NetNet or Nest · figures per each project</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
    </div>`);
 
+// 13) THE SENIORITY LADDER 2400x1350 — tenure multiplier stairs
+const RANKS = [['Associate','day 0+','1.0×',0],['Manager','day 3+','1.2×',1],['Director','day 7+','1.4×',2],['Partner','day 14+','1.7×',3],['Chairman','day 30+','2.0×',4]];
+const stair = (r,i,n) => { const h = 220 + i * 110; const top = i === n-1; return `
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end">
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:${top?56:44}px;font-weight:700;color:var(--deep)">${r[2]}</div>
+      <div style="font-family:var(--disp);font-size:${top?34:28}px;font-weight:700;color:var(--ink);text-transform:uppercase;margin-top:4px">${r[0]}${top?' 👑':''}</div>
+      <div style="font-family:var(--mono);font-size:20px;color:var(--sub);margin-top:2px">${r[1]}</div>
+    </div>
+    <div style="height:${h}px;background:${top?'var(--deep)':'linear-gradient(180deg,rgba(12,90,65,'+(0.25+i*0.16)+'),rgba(12,90,65,'+(0.18+i*0.14)+'))'};border:1px solid var(--line2);border-bottom:0;margin:0 8px;display:flex;align-items:flex-start;justify-content:center;padding-top:14px">
+      ${top?'<span style="font-family:var(--mono);font-size:22px;color:#9fe6c6;font-weight:700">500,000% APY ⚡</span>':''}
+    </div>
+  </div>`; };
+assets['vault-ladder'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:76px 120px 0;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:92px;font-weight:700;color:var(--deep);line-height:.98;margin:10px 0 8px}
+  .h .u{color:var(--bg);-webkit-text-stroke:2px var(--deep)}
+  .s{font-size:29px;color:var(--sub);max-width:1480px;line-height:1.5}
+  .stairs{display:flex;align-items:flex-end;flex:1;margin-top:26px;border-bottom:1px solid var(--line2)}
+  .foot{display:flex;justify-content:space-between;font-size:24px;color:var(--sub);padding:22px 0 26px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The Seniority Ladder · loyalty pays</div>
+     <div class="h disp">Stay enrolled. <span class="u">Get promoted.</span></div>
+     <div class="s">The longer you stay enrolled, the bigger your dividend multiplier — every epoch pays bonus sVAULT scaled to your rank. Redeeming resets you to Associate. Seniority pays.</div>
+     <div class="stairs">${RANKS.map((r,i)=>stair(r,i,RANKS.length)).join('')}</div>
+     <div class="foot mono"><span>◆ Multiplier applies to every distribution · resets on redeem</span><span style="color:var(--accent)">$VAULT · vaultcapitalrh.xyz</span></div>
+   </div>`);
+
 for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
 console.log('done:', Object.keys(assets).length);
